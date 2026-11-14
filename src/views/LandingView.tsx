@@ -94,7 +94,7 @@ export const LandingView: React.FC = () => {
       {/* AWARENESS */}
       <section id="cp-awareness" className="cp-section">
         <div className="cp-section-head">
-          <div><span className="cp-kicker">02 / FRAUD AWARENESS</span><h2>How are people<br /><span>being tricked?</span></h2></div>
+          <div><span className="cp-kicker">02 / FRAUD AWARENESS</span><h2>How are innocent people<br /><span>being tricked?</span></h2></div>
           <p>Scams often change their story, but the pressure pattern is familiar. Learn the setup so the next message feels easier to question.</p>
         </div>
         <div className="cp-scam-grid">
