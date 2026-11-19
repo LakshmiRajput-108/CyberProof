@@ -58,7 +58,7 @@ export const MembershipView: React.FC = () => {
       </div>
 
       {/* Hero Premium Moment */}
-      <div className="p-8 md:p-12 rounded-3xl bg-gradient-to-br from-slate-900 via-cyber-navy-900 to-cyber-navy-850 text-white border border-teal-500/30 shadow-2xl relative overflow-hidden space-y-8">
+      <div className="cp-membership-hero p-8 md:p-12 rounded-3xl bg-gradient-to-br from-slate-900 via-cyber-navy-900 to-cyber-navy-850 text-white border border-teal-500/30 shadow-2xl relative overflow-hidden space-y-8">
         <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-2xl space-y-3">
@@ -112,7 +112,7 @@ export const MembershipView: React.FC = () => {
       {/* Pricing Cards Comparison */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* FREE PLAN */}
-        <div className="p-8 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm flex flex-col justify-between space-y-6">
+        <div className="cp-membership-card p-8 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm flex flex-col justify-between space-y-6">
           <div className="space-y-4">
             <div className="space-y-1">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">CyberProof Free</h3>
@@ -145,7 +145,7 @@ export const MembershipView: React.FC = () => {
         </div>
 
         {/* PREMIUM PLAN */}
-        <div className="p-8 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border-2 border-teal-500 shadow-xl relative flex flex-col justify-between space-y-6">
+        <div className="cp-membership-card p-8 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border-2 border-teal-500 shadow-xl relative flex flex-col justify-between space-y-6">
           <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider bg-teal-500 text-slate-950 uppercase shadow-sm">
             Most Popular
           </div>
@@ -157,7 +157,7 @@ export const MembershipView: React.FC = () => {
             </div>
 
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold text-teal-600 dark:text-teal-400 font-mono">₹49</span>
+              <span className="text-4xl font-extrabold text-teal-600 dark:text-teal-400 font-mono">₹19</span>
               <span className="text-xs text-slate-400 font-medium">/ month · student-friendly</span>
             </div>
 

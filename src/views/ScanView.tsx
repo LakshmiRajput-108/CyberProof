@@ -126,7 +126,7 @@ export const ScanView: React.FC = () => {
       {isLoading ? (
         <ScanProgress stage={scanStage} percent={scanPercent} message={scanMessage} />
       ) : (
-        <div className="bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 rounded-3xl shadow-xl overflow-hidden">
+        <div className="cp-scanner-panel bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 rounded-3xl shadow-xl overflow-hidden">
           {/* Tab navigation */}
           <div className="flex border-b border-slate-200 dark:border-white/10 overflow-x-auto bg-slate-50/50 dark:bg-white/[0.02]">
             {tabs.map(tab => {

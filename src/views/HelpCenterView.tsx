@@ -64,7 +64,7 @@ export const HelpCenterView: React.FC = () => {
             onChange={e => setQuery(e.target.value)}
             placeholder="Search Help Center..."
             aria-label="Search Help Center"
-            className="w-full h-14 pl-12 pr-5 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:border-teal-500/60 shadow-sm"
+            className="cp-help-search w-full h-14 pl-12 pr-5 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
           />
         </div>
       </section>
@@ -74,7 +74,7 @@ export const HelpCenterView: React.FC = () => {
           <button
             key={category.title}
             onClick={() => setQuery(category.title)}
-            className="text-left p-5 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 hover:border-teal-500/50 hover:-translate-y-0.5 transition-all shadow-sm"
+            className="cp-help-category text-left p-5 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm"
           >
             <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-300 flex items-center justify-center mb-4">
               {React.cloneElement(category.icon as React.ReactElement, { className: 'w-5 h-5' })}
@@ -92,7 +92,7 @@ export const HelpCenterView: React.FC = () => {
       )}
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 p-7 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm">
+        <div className="cp-common-questions lg:col-span-2 p-7 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm">
           <div className="flex items-start justify-between gap-4 mb-5">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-teal-600 dark:text-teal-300">Common questions</span>
@@ -105,7 +105,7 @@ export const HelpCenterView: React.FC = () => {
               <div key={question}>
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full py-4 flex items-center justify-between gap-4 text-left text-sm font-semibold text-slate-900 dark:text-white"
+                  className="cp-faq-row w-full py-4 flex items-center justify-between gap-4 text-left text-sm font-semibold text-slate-900 dark:text-white"
                 >
                   <span>{question}</span>
                   <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${openFaq === index ? 'rotate-180' : ''}`} />
@@ -120,7 +120,7 @@ export const HelpCenterView: React.FC = () => {
           <div className="w-11 h-11 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center mb-4"><ShieldAlert className="w-5 h-5" /></div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Need help right now?</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">If you think you have been scammed, stop communicating with the suspected scammer and use the guided recovery flow.</p>
-          <Button className="mt-5" onClick={() => navigateTo('incident-check')}>Open Got Scammed?</Button>
+          <Button className="cp-dark-red-cta mt-5" onClick={() => navigateTo('incident-check')}>Open Got Scammed?</Button>
         </div>
       </section>
 
@@ -137,7 +137,7 @@ export const HelpCenterView: React.FC = () => {
             { org: 'Cyber Fraud Helpline — 1930', purpose: 'National cybercrime financial-fraud reporting number.', link: 'tel:1930', when: 'Call immediately if you have lost money to cyber fraud.' },
             { org: 'RBI Kehta Hai', purpose: 'Banking fraud awareness and secure banking practices.', link: 'https://rbikehtahai.rbi.org.in/', when: 'Use for official banking safety guidance and customer awareness.' },
           ].map(resource => (
-            <div key={resource.org} className="p-5 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 flex flex-col justify-between gap-4">
+            <div key={resource.org} className="cp-official-resource p-5 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 flex flex-col justify-between gap-4">
               <div>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Official Resource</span>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white pt-2">{resource.org}</h3>

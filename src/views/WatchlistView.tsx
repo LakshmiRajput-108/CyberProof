@@ -66,13 +66,13 @@ export const WatchlistView: React.FC = () => {
           placeholder="Filter tracked websites..."
           value={filterQuery}
           onChange={e => setFilterQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 rounded-xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+          className="cp-site-search w-full pl-10 pr-4 py-2 bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 rounded-xl text-xs md:text-sm focus:outline-none"
         />
       </div>
 
       {/* Watchlist Grid */}
       {filtered.length === 0 ? (
-        <div className="p-12 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 text-center space-y-3">
+        <div className="cp-site-card p-12 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 text-center space-y-3">
           <Bookmark className="w-8 h-8 text-slate-400 mx-auto" />
           <h3 className="text-base font-bold text-slate-900 dark:text-white">No sites tracked yet</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -95,7 +95,7 @@ export const WatchlistView: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 hover:border-teal-500/40 shadow-sm transition-all flex flex-col justify-between space-y-4"
+                className="cp-site-card p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm flex flex-col justify-between space-y-4"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">

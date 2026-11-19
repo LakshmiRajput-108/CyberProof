@@ -46,6 +46,8 @@ interface AppDataContextType {
   resetDemoData: () => void;
   isPremium: boolean;
   setIsPremium: (val: boolean) => void;
+  goBack: () => void;
+  goForward: () => void;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -80,15 +82,51 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     refreshData();
   }, []);
 
+  useEffect(() => {
+    const validView = (value: string | null): AppView =>
+      value && ['landing','scan','result','history','website-detail','watchlist','incident-check','threat-pulse','learn','profile','membership','extension-preview','help-center','developers'].includes(value)
+        ? value as AppView
+        : 'landing';
+
+    const restoreFromHistory = () => {
+      const state = window.history.state as { cpView?: AppView; cpParams?: NavigationParams } | null;
+      setActiveView(validView(state?.cpView || new URLSearchParams(window.location.search).get('view')));
+      const params = state?.cpParams || {};
+      setCurrentParams(params);
+      if (params.scan) setSelectedScan(params.scan);
+      if (params.domain) setSelectedDomain(params.domain);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    };
+
+    setActiveView('landing');
+    setCurrentParams({});
+    window.history.replaceState({ cpView: 'landing', cpParams: {} }, '', window.location.pathname);
+    window.addEventListener('popstate', restoreFromHistory);
+    return () => window.removeEventListener('popstate', restoreFromHistory);
+  }, []);
+
   const navigateTo = (view: AppView, params?: NavigationParams) => {
+    const currentState = window.history.state as { cpView?: AppView; cpParams?: NavigationParams } | null;
+    if (currentState?.cpView === view && JSON.stringify(currentState.cpParams || {}) === JSON.stringify(params || {})) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     setActiveView(view);
     if (params) {
       setCurrentParams(params);
       if (params.scan) setSelectedScan(params.scan);
       if (params.domain) setSelectedDomain(params.domain);
+    } else {
+      setCurrentParams({});
     }
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', view);
+    window.history.pushState({ cpView: view, cpParams: params || {} }, '', `${url.pathname}${url.search}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const goBack = () => window.history.back();
+  const goForward = () => window.history.forward();
 
   const addScanRecord = (newScan: Scan) => {
     setScans(prev => [newScan, ...prev]);
@@ -166,6 +204,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         resetDemoData,
         isPremium,
         setIsPremium,
+        goBack,
+        goForward,
       }}
     >
       {children}

@@ -77,22 +77,22 @@ export const HistoryView: React.FC = () => {
 
       {/* History Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10">
+        <div className="cp-history-card p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10">
           <span className="text-[10px] uppercase tracking-wider text-slate-400">Analyses</span>
           <strong className="block mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{uniqueHistories.reduce((n,h)=>n+h.scan_count,0)}</strong>
         </div>
-        <div className="p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10">
+        <div className="cp-history-card p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10">
           <span className="text-[10px] uppercase tracking-wider text-slate-400">Tracked Websites</span>
           <strong className="block mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{uniqueHistories.length}</strong>
         </div>
-        <div className="p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10">
+        <div className="cp-history-card p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10">
           <span className="text-[10px] uppercase tracking-wider text-slate-400">High Risk Flagged</span>
           <strong className="block mt-1 text-2xl font-extrabold text-rose-600 dark:text-rose-400">{uniqueHistories.filter(h=>h.current_risk==='HIGH').length}</strong>
         </div>
       </div>
 
       {/* Filters Bar */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm flex flex-col md:flex-row items-center gap-4">
+      <div className="cp-history-card p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm flex flex-col md:flex-row items-center gap-4">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -141,7 +141,7 @@ export const HistoryView: React.FC = () => {
 
       {/* History Items Grid */}
       {filteredHistories.length === 0 ? (
-        <div className="p-12 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 text-center space-y-3">
+        <div className="cp-history-card p-12 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 text-center space-y-3">
           <History className="w-8 h-8 text-slate-400 mx-auto" />
           <h3 className="text-base font-bold text-slate-900 dark:text-white">No Matching History</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -162,7 +162,7 @@ export const HistoryView: React.FC = () => {
               <div
                 key={hist.domain}
                 onClick={() => navigateTo('website-detail', { domain: hist.domain, scan: latestScan })}
-                className="p-5 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 hover:border-teal-500/50 hover:shadow-md transition-all cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 group"
+                className="cp-history-card p-5 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 group"
               >
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap">
