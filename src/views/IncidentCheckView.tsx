@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { API_BASE_URL } from '../config/api';
 import { IncidentCategory } from '../types/incident';
+import { ReadAloudButton, VoiceInputButton } from '../components/accessibility/SpeechControls';
 
 export const IncidentCheckView: React.FC = () => {
   const { navigateTo } = useAppData();
@@ -139,7 +140,7 @@ export const IncidentCheckView: React.FC = () => {
           <EyeOff className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
           <span><strong>Privacy Rule:</strong> We will never ask for your passwords, OTP codes, card numbers, or PINs.</span>
         </div>
-        <span className="font-mono text-[11px] font-semibold">Triage Only</span>
+        <span className="flex items-center gap-2 font-mono text-[11px] font-semibold"><span>Triage Only</span><ReadAloudButton text="Privacy Rule: We will never ask for your passwords, OTP codes, card numbers, or PINs." /></span>
       </div>
 
       {/* STEP 1: CATEGORY SELECTION */}
@@ -153,10 +154,10 @@ export const IncidentCheckView: React.FC = () => {
             {categories.map(cat => {
               const Icon = cat.icon;
               return (
+                <div key={cat.id} className="relative">
                 <button
-                  key={cat.id}
                   onClick={() => handleSelectCategory(cat.id)}
-                  className="p-5 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 hover:border-teal-500/50 hover:shadow-lg transition-all text-left flex items-start gap-4 group"
+                  className="w-full h-full p-5 pr-12 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 hover:border-teal-500/50 hover:shadow-lg transition-all text-left flex items-start gap-4 group"
                 >
                   <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Icon className="w-6 h-6" />
@@ -170,6 +171,8 @@ export const IncidentCheckView: React.FC = () => {
                     </p>
                   </div>
                 </button>
+                <span className="absolute right-3 top-3"><ReadAloudButton text={`${cat.title}. ${cat.desc}`} /></span>
+                </div>
               );
             })}
           </div>
@@ -257,8 +260,9 @@ export const IncidentCheckView: React.FC = () => {
 
             {/* Brand mimicked */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Which brand or authority did they claim to be? (Optional)
+              <label className="flex items-center justify-between gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <span>Which brand or authority did they claim to be? (Optional)</span>
+                <VoiceInputButton onTranscript={text => setBrandMimicked(prev => prev.trim() ? `${prev.trim()} ${text}` : text)} />
               </label>
               <input
                 type="text"
@@ -271,8 +275,9 @@ export const IncidentCheckView: React.FC = () => {
 
             {/* Freeform Context */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Brief description of what happened
+              <label className="flex items-center justify-between gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <span>Brief description of what happened</span>
+                <VoiceInputButton onTranscript={text => setSituationText(prev => prev.trim() ? `${prev.trim()} ${text}` : text)} />
               </label>
               <textarea
                 rows={3}
@@ -298,7 +303,8 @@ export const IncidentCheckView: React.FC = () => {
       {/* STEP 3: STRUCTURED DIAGNOSIS RESULT */}
       {step === 'result' && (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
-          <div className="p-6 md:p-8 rounded-3xl bg-rose-50 dark:bg-rose-500/10 border border-rose-300 dark:border-rose-500/30 text-rose-950 dark:text-rose-200 space-y-3">
+          <div className="p-6 md:p-8 rounded-3xl bg-rose-50 dark:bg-rose-500/10 border border-rose-300 dark:border-rose-500/30 text-rose-950 dark:text-rose-200 space-y-3 relative">
+            <span className="absolute right-4 top-4"><ReadAloudButton text="Probable Social Engineering / Phishing Attempt. Based on the interaction pattern, this scenario closely matches classic deceptive impersonation." /></span>
             <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400">
               <AlertOctagon className="w-6 h-6" />
               <span className="text-xs font-mono font-bold uppercase tracking-wider">Triage Diagnosis: Elevated Threat Indicators</span>
@@ -312,7 +318,8 @@ export const IncidentCheckView: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 space-y-3 shadow-sm">
+            <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 space-y-3 shadow-sm relative">
+              <span className="absolute right-3 top-3"><ReadAloudButton text="What May Have Happened?" /></span>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-teal-500" />
                 <span>1. What May Have Happened?</span>
@@ -322,7 +329,8 @@ export const IncidentCheckView: React.FC = () => {
               </p>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 space-y-3 shadow-sm">
+            <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 space-y-3 shadow-sm relative">
+              <span className="absolute right-3 top-3"><ReadAloudButton text="Why It May Be Suspicious? Legitimate organizations rarely impose immediate countdowns. Direct callback numbers and small payment demands are common scam patterns." /></span>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-500" />
                 <span>2. Why It May Be Suspicious?</span>
@@ -343,7 +351,8 @@ export const IncidentCheckView: React.FC = () => {
               </ul>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 space-y-3 shadow-sm">
+            <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 space-y-3 shadow-sm relative">
+              <span className="absolute right-3 top-3"><ReadAloudButton text="What To Check? Open your official app or bookmarked website. Verify the sender. Scan any included link before clicking." /></span>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-blue-500" />
                 <span>3. What To Check?</span>
@@ -364,7 +373,8 @@ export const IncidentCheckView: React.FC = () => {
               </ul>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-emerald-500/30 space-y-3 shadow-sm">
+            <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-emerald-500/30 space-y-3 shadow-sm relative">
+              <span className="absolute right-3 top-3"><ReadAloudButton text="What To Do Next? Do not click links or share OTPs. Block the sender and report it. If card details were entered, contact the bank immediately." /></span>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <span>4. What To Do Next?</span>

@@ -100,8 +100,11 @@ export const LandingView: React.FC = () => {
         <div className="cp-scam-grid">
           {scams.map(item => {
             const Icon = item.icon;
+            const imageUrl = item.title === 'Fake jobs & task scams'
+              ? '/assets/fraud-job-scams.png'
+              : `https://images.unsplash.com/photo-${item.title.startsWith('Digital') ? '1556742049-0cfed4f6a45d' : item.title.startsWith('UPI') ? '1563013544-824ae1b704d3' : item.title.startsWith('AI') ? '1550751827-4bd374c3f58b' : '1521737711867-7b4c8f5f7f2f'}?auto=format&fit=crop&w=900&q=80`;
             return <article key={item.title} className="cp-scam-card">
-              <div className="cp-scam-image"><img src={`https://images.unsplash.com/photo-${item.title.startsWith('Digital') ? '1556742049-0cfed4f6a45d' : item.title.startsWith('UPI') ? '1563013544-824ae1b704d3' : item.title.startsWith('Fake') ? '1521737711867-7b4c8f5f7f2f' : '1550751827-4bd374c3f58b'}?auto=format&fit=crop&w=900&q=80`} alt="" /><div /></div>
+            <div className="cp-scam-image"><img src={imageUrl} alt="" /><div /></div>
               <div className="cp-scam-content"><span className="cp-scam-icon"><Icon className="w-5 h-5" /></span><h3>{item.title}</h3><p>{item.text}</p><button onClick={() => navigateTo('learn')} >Learn the red flags <ArrowRight className="w-4 h-4" /></button></div>
             </article>;
           })}
@@ -120,8 +123,8 @@ export const LandingView: React.FC = () => {
             <div className="cp-pathway-overlay" />
             <div className="cp-pathway-copy"><span>01 • VERIFY</span><h3>Pre-click protection</h3><p>Check a suspicious URL, QR destination, email or message before you interact.</p><button onClick={() => goScan()}>Open CyberProof analysis <ArrowRight className="w-4 h-4" /></button></div>
           </article>
-          <button className="cp-pathway-card" onClick={() => navigateTo('incident-check')}><span>02 • RESPOND</span><h3>Got Scammed?</h3><p>If something already happened, move from confusion to a guided recovery path.</p><b>Start recovery <ArrowRight className="w-4 h-4" /></b></button>
-          <button className="cp-pathway-card" onClick={() => navigateTo('threat-pulse')}><span>03 • MONITOR</span><h3>Threat Radar</h3><p>See scam patterns, awareness topics and recent threat information in one place.</p><b>Open Threat Radar <ArrowRight className="w-4 h-4" /></b></button>
+          <button className="cp-pathway-card cp-pathway-card-image" onClick={() => navigateTo('incident-check')}><img src="/assets/protection-first.png" alt="" /><span>02 • RESPOND</span><h3>Got Scammed?</h3><p>If something already happened, move from confusion to a guided recovery path.</p><b>Start recovery <ArrowRight className="w-4 h-4" /></b></button>
+          <button className="cp-pathway-card cp-pathway-card-image" onClick={() => navigateTo('threat-pulse')}><img src="/assets/protection-second.png" alt="" /><span>03 • MONITOR</span><h3>Threat Radar</h3><p>See scam patterns, awareness topics and recent threat information in one place.</p><b>Open Threat Radar <ArrowRight className="w-4 h-4" /></b></button>
         </div>
       </section>
 
@@ -144,12 +147,12 @@ export const LandingView: React.FC = () => {
       <section className="cp-section cp-video-section">
         <div className="cp-section-head"><div><span className="cp-kicker">06 / CYBER CRIME MEDIA GALLERY</span><h2>Watch. Learn.<br /><span>Recognise the pattern.</span></h2></div><p>CyberProof keeps awareness close to the tools. These are original CyberProof awareness explainers included with the project.</p></div>
         <div className="cp-video-grid">
-          {[
+          {[ 
             ['videos/digital-arrest-awareness.mp4','Digital arrest scams'],
             ['videos/fake-police-video-call.mp4','Fake police video calls'],
             ['videos/family-money-scam.mp4','Family emergency money scams'],
             ['videos/ai-deepfake-scam-awareness.mp4','AI & deepfake scams'],
-          ].map(([src,title]) => <article className="cp-video-card" key={src}><div className="cp-video-frame"><video controls preload="metadata"><source src={src} type="video/mp4" />Your browser does not support video.</video><span><Play className="w-4 h-4" /> CyberProof awareness</span></div><div><h3>{title}</h3><p>Short practical awareness explainer.</p></div></article>)}
+          ].map(([src,title]) => <article className="cp-video-card cp-hover-3d" key={src}><div className="cp-video-frame"><video controls preload="metadata"><source src={src} type="video/mp4" />Your browser does not support video.</video><span><Play className="w-4 h-4" /> CyberProof awareness</span></div><div><h3>{title}</h3><p>Short practical awareness explainer.</p></div></article>)}
         </div>
       </section>
 
@@ -161,7 +164,7 @@ export const LandingView: React.FC = () => {
 
       {/* EXTENSION */}
       <section className="cp-section cp-extension">
-        <div className="cp-extension-copy"><span className="cp-kicker">07 / CYBERPROOF GUARD</span><h2>Protection that<br /><span>travels with you.</span></h2><p>Premium members can use the CyberProof Guard browser extension to check websites and messages without repeatedly opening the main site.</p><div className="flex flex-wrap gap-3"><Button variant="primary" onClick={() => navigateTo('extension-preview')} rightIcon={<ArrowRight className="w-4 h-4" />}>Preview Guard</Button><Button variant="outline" onClick={() => navigateTo('membership')}>See membership</Button></div></div><div className="cp-extension-visual"><Chrome className="w-8 h-8" /><strong>CyberProof Guard</strong><span>Quick check • Message check • Website check</span><div className="cp-extension-status"><ShieldCheck className="w-4 h-4" /> Protection preview</div></div>
+        <div className="cp-extension-copy"><span className="cp-kicker">07 / CYBERPROOF GUARD</span><h2>Protection that<br /><span>travels with you.</span></h2><p>Premium members can use the CyberProof Guard browser extension to check websites and messages without repeatedly opening the main site.</p><div className="flex flex-wrap gap-3"><Button variant="primary" onClick={() => navigateTo('extension-preview')} rightIcon={<ArrowRight className="w-4 h-4" />}>Preview Guard</Button><Button variant="outline" onClick={() => navigateTo('membership')}>See membership</Button></div></div><div className="cp-extension-visual cp-hover-3d"><Chrome className="w-8 h-8" /><strong>CyberProof Guard</strong><span>Quick check • Message check • Website check</span><div className="cp-extension-status"><ShieldCheck className="w-4 h-4" /> Protection preview</div></div>
       </section>
 
       {/* OFFICIAL REPORTING CTA */}

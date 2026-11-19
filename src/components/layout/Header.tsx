@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAppData } from '../../context/AppDataContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Menu, Search, ShieldCheck, Sun, Moon, Monitor, History, UserRound, Volume2, Minus, Plus, Globe2, ChevronDown, Code2 } from 'lucide-react';
+import { VoiceInputButton } from '../accessibility/SpeechControls';
 
 interface HeaderProps { onOpenMobileNav: () => void; }
 
@@ -53,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
         </nav>
         <div className="cp-header-tools">
           <form onSubmit={submitQuick} className="cp-quick-search">
-            <Search className="w-4 h-4" /><input value={quickInput} onChange={e => setQuickInput(e.target.value)} placeholder="Quick check URL" /><button type="submit">Check</button>
+            <Search className="w-4 h-4" /><input value={quickInput} onChange={e => setQuickInput(e.target.value)} placeholder="Quick check URL" /><VoiceInputButton onTranscript={text => setQuickInput(prev => prev.trim() ? `${prev.trim()} ${text}` : text)} /><button type="submit">Check</button>
           </form>
           <button className="cp-tool-btn cp-history-btn" onClick={() => navigateTo('history')} title="Security History"><History className="w-4 h-4" /><span>History</span><b>{scans.length}</b></button>
           <div className="cp-tool-group">

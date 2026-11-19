@@ -3,6 +3,7 @@ import { ArrowUpRight, Bell, Clock3, Search, ShieldAlert, Tag } from 'lucide-rea
 import { useAppData } from '../context/AppDataContext';
 import { API_BASE_URL } from '../config/api';
 import { THREAT_AWARENESS_TOPICS } from '../services/mockData';
+import { ReadAloudButton } from '../components/accessibility/SpeechControls';
 
 export interface ThreatPulse {
   id: string;
@@ -80,7 +81,7 @@ export const ThreatPulseView: React.FC = () => {
 
       <div className="flex gap-2 overflow-x-auto pb-1">
         {categories.map(category => (
-          <button key={category} onClick={() => setActiveCategory(category)} className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold border transition ${activeCategory === category ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white' : 'bg-white dark:bg-cyber-bg-darkCard text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10'}`}>
+          <button key={category} onClick={() => setActiveCategory(category)} aria-pressed={activeCategory === category} className={`cp-category-filter shrink-0 rounded-full px-4 py-2 text-xs font-semibold border transition ${activeCategory === category ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white' : 'bg-white dark:bg-cyber-bg-darkCard text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10'}`}>
             {category}
           </button>
         ))}
@@ -88,7 +89,7 @@ export const ThreatPulseView: React.FC = () => {
 
       {featured && (
         <section className="grid lg:grid-cols-[1.45fr_0.55fr] gap-5">
-          <article className="group overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard shadow-sm">
+          <article className="cp-threat-featured group overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard shadow-sm">
             <div className="min-h-52 p-7 md:p-9 bg-gradient-to-br from-[#34626C] via-[#2a5159] to-[#1F3A40] text-white relative overflow-hidden">
               <div className="absolute -right-12 -top-16 w-56 h-56 rounded-full border border-white/10" />
               <div className="absolute right-10 bottom-8 w-24 h-24 rounded-full bg-white/5" />
@@ -97,7 +98,7 @@ export const ThreatPulseView: React.FC = () => {
                   <span className="px-2.5 py-1 rounded-full bg-white/10 border border-white/15">Featured briefing</span>
                   <span className="px-2.5 py-1 rounded-full bg-rose-400/15 text-rose-100 border border-rose-200/15">{featured.status}</span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-extrabold leading-tight">{featured.topic}</h2>
+                <div className="flex items-start justify-between gap-3"><h2 className="text-2xl md:text-3xl font-extrabold leading-tight">{featured.topic}</h2><ReadAloudButton text={`${featured.topic}. ${featured.summary}`} /></div>
                 <p className="text-sm text-white/80 leading-relaxed max-w-xl">{featured.summary}</p>
                 <div className="flex items-center gap-4 text-xs text-white/65">
                   <span className="flex items-center gap-1.5"><Clock3 className="w-3.5 h-3.5" /> {readTime(featured)}</span>
@@ -111,8 +112,8 @@ export const ThreatPulseView: React.FC = () => {
             </div>
           </article>
 
-          <aside className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard p-6">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white"><Bell className="w-4 h-4 text-teal-500" /> What to watch</div>
+          <aside className="cp-threat-watch rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard p-6">
+            <div className="flex items-center justify-between gap-2 text-sm font-bold text-slate-900 dark:text-white"><span className="flex items-center gap-2"><Bell className="w-4 h-4 text-teal-500" /> What to watch</span><ReadAloudButton text={`What to watch. ${(featured.indicatorsToWatch || []).join('. ')}`} /></div>
             <div className="mt-5 space-y-4">
               {(featured.indicatorsToWatch || []).slice(0, 3).map((item, i) => (
                 <div key={i} className="flex gap-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -136,12 +137,12 @@ export const ThreatPulseView: React.FC = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {latest.map(topic => (
-            <article key={topic.id} className="group rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard p-5 hover:-translate-y-0.5 hover:shadow-md transition-all">
+            <article key={topic.id} className="cp-briefing-card group rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard p-5">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">{categoryFor(topic)}</span>
                 <span className="text-[10px] text-slate-400">{readTime(topic)}</span>
               </div>
-              <h3 className="mt-4 text-lg font-bold leading-snug text-slate-900 dark:text-white">{topic.topic}</h3>
+              <div className="mt-4 flex items-start justify-between gap-2"><h3 className="text-lg font-bold leading-snug text-slate-900 dark:text-white">{topic.topic}</h3><ReadAloudButton text={`${topic.topic}. ${topic.summary}`} /></div>
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3">{topic.summary}</p>
               <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
                 <span className="text-[11px] text-slate-400">{topic.lastUpdated}</span>
@@ -153,11 +154,11 @@ export const ThreatPulseView: React.FC = () => {
       </section>
 
       {selectedTopic && (
-        <section className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard p-6 md:p-8 space-y-6">
+        <section className="cp-briefing-reader rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-cyber-bg-darkCard p-6 md:p-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 border-b border-slate-100 dark:border-white/5 pb-5">
             <div>
               <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">Briefing reader · {categoryFor(selectedTopic)}</div>
-              <h2 className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-white">{selectedTopic.topic}</h2>
+              <div className="mt-2 flex items-start justify-between gap-3"><h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">{selectedTopic.topic}</h2><ReadAloudButton text={`${selectedTopic.topic}. ${selectedTopic.summary}. Red flags: ${selectedTopic.indicatorsToWatch.join('. ')}. What you can do: ${selectedTopic.preventiveAction}`} /></div>
               <p className="mt-1 text-xs text-slate-400">{selectedTopic.lastUpdated} · {readTime(selectedTopic)}</p>
             </div>
           </div>
@@ -178,7 +179,7 @@ export const ThreatPulseView: React.FC = () => {
         </section>
       )}
 
-      <div className="rounded-2xl border border-teal-500/20 bg-teal-500/[0.04] p-5 text-sm text-slate-600 dark:text-slate-300">
+      <div className="cp-awareness-note rounded-2xl border p-5 text-sm">
         <strong className="text-slate-900 dark:text-white">CyberProof awareness note:</strong> Threat Radar is designed as an educational briefing feed. It does not claim to be a live global attack map; current entries should be date-stamped and sourced when connected to live reporting.
       </div>
     </div>
