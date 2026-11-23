@@ -1,45 +1,24 @@
-import React, { useState } from 'react';
 import { useAppData } from '../context/AppDataContext';
 import { Button } from '../components/ui/Button';
-import { 
-  Sparkles, 
-  Check, 
-  Chrome, 
-  EyeOff, 
-  Info
-} from 'lucide-react';
+import { Sparkles, Check, Chrome, EyeOff } from 'lucide-react';
 
 export const MembershipView: React.FC = () => {
-  const { navigateTo, isPremium, setIsPremium } = useAppData();
-  const [showNotification, setShowNotification] = useState(false);
+  const { navigateTo } = useAppData();
 
   const freeFeatures = [
-    'Basic website URL analysis',
-    'QR code safety inspection',
-    'Email content heuristic checks',
-    'Suspicious message triage',
-    'OTP situation advisory (zero secret collection)',
+    'URL pattern analysis (not a live site reputation check)',
+    'Member-only QR text, email, message, and OTP-situation analysis',
+    'QR image decoding is unavailable',
     'Standard security explanations',
     'Public Learn Hub guides',
-    'Local browser scan memory',
+    'Account or guest-session scan history and Site Intelligence',
   ];
 
   const premiumFeatures = [
-    'CyberProof Browser Extension preview',
-    'Instant toolbar checks without leaving websites',
-    'Advanced Website Security History',
-    'Multi-scan chronological Security Timeline',
-    'Empirical Before vs Now delta verification',
-    'Site Intelligence & website history',
-    'Deep-dive explainable rationale drawer',
-    'Personal Security Dashboard with trends',
-    'Zero credential reading privacy guarantee',
+    'Installable browser extension — in development',
+    'Live toolbar checks — not available',
+    'Premium billing and activation — not available',
   ];
-
-  const handleUpgradeClick = () => {
-    setIsPremium(true);
-    setShowNotification(true);
-  };
 
   return (
     <div className="space-y-12 pb-16 max-w-5xl mx-auto">
@@ -53,7 +32,7 @@ export const MembershipView: React.FC = () => {
           Simple, Honest Digital Trust.
         </h1>
         <p className="text-xs sm:text-base text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
-          Start free with transparent analysis. Upgrade to CyberProof Protection to keep verification right in your browser toolbar.
+          Current scanning and account features are available without a paid upgrade. Premium billing and membership activation are not available.
         </p>
       </div>
 
@@ -63,23 +42,23 @@ export const MembershipView: React.FC = () => {
 
         <div className="max-w-2xl space-y-3">
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-teal-400">
-            Hero Upgrade Highlight
+            Current availability
           </span>
           <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight">
-            CyberProof goes with you while you browse.
+            Browser extension in development.
           </h2>
           <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
-            With CyberProof Protection, your security check is available while you browse — without leaving the website you're checking. Inspect identity, encryption, and deceptive indicators directly in your toolbar.
+            The interactive sandbox is a conceptual preview only. It is not installable and does not check the active browser tab. No paid upgrade is currently offered.
           </p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2">
           {[
-            { step: '01', title: 'Any Website', desc: 'Browse naturally' },
-            { step: '02', title: 'Browser Extension', desc: 'Click CyberProof icon' },
-            { step: '03', title: 'Instant Assessment', desc: 'Inspect origin signals' },
-            { step: '04', title: 'Understand Evidence', desc: 'Read why it was flagged' },
-            { step: '05', title: 'Continue Safely', desc: 'Act with confidence' },
+            { step: '01', title: 'Concept preview', desc: 'Illustrative browser UI' },
+            { step: '02', title: 'Not installable', desc: 'No browser extension package' },
+            { step: '03', title: 'No live checks', desc: 'No active-tab analysis' },
+            { step: '04', title: 'No billing', desc: 'Purchases are unavailable' },
+            { step: '05', title: 'No paid unlock', desc: 'Features are not gated by payment' },
           ].map((item, idx) => (
             <div
               key={idx}
@@ -120,8 +99,8 @@ export const MembershipView: React.FC = () => {
             </div>
 
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-extrabold text-slate-900 dark:text-white font-mono">₹0</span>
-              <span className="text-xs text-slate-400 font-medium">/ forever</span>
+              <span className="text-2xl font-extrabold text-slate-900 dark:text-white">Free to use</span>
+              <span className="text-xs text-slate-400 font-medium">no paid plan is required</span>
             </div>
 
             <ul className="space-y-3 pt-4 border-t border-slate-100 dark:border-white/5 text-xs text-slate-700 dark:text-slate-300">
@@ -140,25 +119,24 @@ export const MembershipView: React.FC = () => {
             onClick={() => navigateTo('scan')}
             className="w-full"
           >
-            Current Active Plan
+            Explore scanner
           </Button>
         </div>
 
         {/* PREMIUM PLAN */}
         <div className="cp-membership-card p-8 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border-2 border-teal-500 shadow-xl relative flex flex-col justify-between space-y-6">
           <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider bg-teal-500 text-slate-950 uppercase shadow-sm">
-            Most Popular
+            Not Available
           </div>
 
           <div className="space-y-4">
             <div className="space-y-1">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">CyberProof Protection</h3>
-              <p className="text-xs text-slate-500">In-browser protection and deep chronological security history.</p>
+              <p className="text-xs text-slate-500">Planned offering only. No Premium plan is currently available.</p>
             </div>
 
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold text-teal-600 dark:text-teal-400 font-mono">₹19</span>
-              <span className="text-xs text-slate-400 font-medium">/ month · student-friendly</span>
+              <span className="text-2xl font-extrabold text-teal-600 dark:text-teal-400">Pricing unavailable</span>
             </div>
 
             <ul className="space-y-3 pt-4 border-t border-slate-100 dark:border-white/5 text-xs text-slate-700 dark:text-slate-300 font-medium">
@@ -173,40 +151,20 @@ export const MembershipView: React.FC = () => {
 
           <div className="space-y-3">
             <Button
-              variant={isPremium ? "secondary" : "primary"}
+              variant="secondary"
               size="md"
-              onClick={handleUpgradeClick}
               className="w-full shadow-lg"
-              disabled={isPremium}
+              disabled
             >
-              {isPremium ? 'Premium Active' : 'Upgrade to Premium'}
+              Purchases unavailable
             </Button>
             <p className="text-[11px] text-center text-slate-400 font-mono">
-              Honest Notice: Demonstrator environment. No real billing charges occur.
+              No payment has been taken and no Premium entitlement can be activated.
             </p>
           </div>
         </div>
       </div>
 
-      {showNotification && (
-        <div className="p-5 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-900 dark:text-teal-300 flex items-start justify-between gap-4 animate-in fade-in duration-200">
-          <div className="space-y-1">
-            <h4 className="text-sm font-bold flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-teal-500" />
-              <span>Premium Unlocked (Demo Mode)</span>
-            </h4>
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              In accordance with CyberProof principles, we never simulate fake credit card or UPI processing. Premium features are now unlocked for this session. Test all premium features right now in the <strong>Browser Extension Sandbox</strong> and <strong>Security History</strong> views!
-            </p>
-          </div>
-          <button
-            onClick={() => setShowNotification(false)}
-            className="text-xs font-semibold text-teal-600 dark:text-teal-400 underline shrink-0"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
     </div>
   );
 };

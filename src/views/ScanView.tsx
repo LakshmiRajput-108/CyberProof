@@ -1,33 +1,98 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppData } from '../context/AppDataContext';
 import { ScannerService } from '../services/scannerService';
 import { ScanStage } from '../types/scan';
 import { ScanProgress } from '../components/scanner/ScanProgress';
+import { Button } from '../components/ui/Button';
 import { UrlScanner } from '../components/scanner/UrlScanner';
 import { QrScanner } from '../components/scanner/QrScanner';
 import { EmailScanner } from '../components/scanner/EmailScanner';
 import { MessageScanner } from '../components/scanner/MessageScanner';
 import { OtpScanner } from '../components/scanner/OtpScanner';
+import { useAuth } from '../context/AuthContext';
+import { ApiHttpError, ApiNetworkError } from '../services/apiClient';
 import { 
   Globe, 
   QrCode, 
   Mail, 
   MessageSquare, 
   Lock,
-  EyeOff
+  EyeOff,
+  UserRound
 } from 'lucide-react';
+
+const getScanErrorMessage = (error: unknown, isMemberRequest: boolean): string => {
+  if (error instanceof ApiNetworkError) {
+    return 'Could not reach CyberProof. Check your connection and try again.';
+  }
+
+  if (error instanceof ApiHttpError) {
+    if (error.status === 401) {
+      return isMemberRequest
+        ? 'Your member session expired. Sign in again to continue; guest URL scanning remains available.'
+        : 'Your guest scan session could not be verified. Restore the session below, then retry the scan.';
+    }
+    if (error.status === 403) {
+      return 'This analysis requires a signed-in member account. Sign in and try again.';
+    }
+    if (error.status === 429) {
+      return 'Too many requests were made. Wait a moment, then try again.';
+    }
+    if (error.status >= 500) {
+      return 'CyberProof could not complete the analysis right now. Please try again later.';
+    }
+    return `CyberProof could not accept this request (HTTP ${error.status}). Review the input and try again.`;
+  }
+
+  return 'The analysis could not be completed. Please try again.';
+};
 
 export const ScanView: React.FC = () => {
   const { currentParams, navigateTo, addScanRecord } = useAppData();
+  const { token, loading: authLoading, guestLoading, ensureGuestSession } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'url' | 'qr' | 'email' | 'message' | 'otp-situation'>(
-    (currentParams.tab as any) || 'url'
-  );
+  const [activeTab, setActiveTab] = useState<'url' | 'qr' | 'email' | 'message' | 'otp-situation'>('url');
+
+  useEffect(() => {
+    const requestedTab = currentParams.tab;
+    if (
+      requestedTab === 'url' ||
+      requestedTab === 'qr' ||
+      requestedTab === 'email' ||
+      requestedTab === 'message' ||
+      requestedTab === 'otp-situation'
+    ) {
+      setActiveTab(requestedTab);
+    }
+  }, [currentParams.tab]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [scanStage, setScanStage] = useState<ScanStage>('idle');
   const [scanPercent, setScanPercent] = useState(0);
   const [scanMessage, setScanMessage] = useState('');
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [needsGuestSessionRetry, setNeedsGuestSessionRetry] = useState(false);
+  const [retryingGuestSession, setRetryingGuestSession] = useState(false);
+
+  const recordScanError = (error: unknown) => {
+    setNeedsGuestSessionRetry(
+      !token && error instanceof ApiHttpError && error.status === 401
+    );
+    setScanError(getScanErrorMessage(error, Boolean(token)));
+  };
+
+  const retryGuestScanSession = async () => {
+    setRetryingGuestSession(true);
+    try {
+      await ensureGuestSession();
+      setNeedsGuestSessionRetry(false);
+      setScanError(null);
+    } catch (error) {
+      setScanError(error instanceof Error ? error.message : 'Could not restore your guest session. Please retry.');
+    } finally {
+      setRetryingGuestSession(false);
+    }
+  };
 
   const handleProgress = (stage: ScanStage, percent: number, msg: string) => {
     setScanStage(stage);
@@ -37,12 +102,15 @@ export const ScanView: React.FC = () => {
 
   const handleUrlScan = async (url: string) => {
     setIsLoading(true);
+    setScanError(null);
+    setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeUrl(url, handleProgress);
       addScanRecord(result);
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
+      recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -50,12 +118,15 @@ export const ScanView: React.FC = () => {
 
   const handleQrScan = async (payload: string) => {
     setIsLoading(true);
+    setScanError(null);
+    setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeQr(payload, handleProgress);
       addScanRecord(result);
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
+      recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -63,12 +134,15 @@ export const ScanView: React.FC = () => {
 
   const handleEmailScan = async (sender: string, subject: string, body: string) => {
     setIsLoading(true);
+    setScanError(null);
+    setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeEmail(sender, subject, body, handleProgress);
       addScanRecord(result);
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
+      recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -76,12 +150,15 @@ export const ScanView: React.FC = () => {
 
   const handleMessageScan = async (msg: string, channel: string) => {
     setIsLoading(true);
+    setScanError(null);
+    setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeMessage(msg, channel, handleProgress);
       addScanRecord(result);
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
+      recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -89,12 +166,15 @@ export const ScanView: React.FC = () => {
 
   const handleOtpScan = async (desc: string, channel: string) => {
     setIsLoading(true);
+    setScanError(null);
+    setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeOtpSituation(desc, channel, handleProgress);
       addScanRecord(result);
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
+      recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -119,12 +199,17 @@ export const ScanView: React.FC = () => {
           Scan & Analyze Digital Signals
         </h1>
         <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
-          Choose what you are checking. We analyze publicly observable markers to explain evidence in plain English.
+          URL checks use submitted-text and hostname heuristics, not live threat intelligence. Member-only analysis types are clearly identified below.
         </p>
       </div>
 
       {isLoading ? (
-        <ScanProgress stage={scanStage} percent={scanPercent} message={scanMessage} />
+        <ScanProgress
+          stage={scanStage}
+          percent={scanPercent}
+          message={scanMessage}
+          isUrlAnalysis={activeTab === 'url'}
+        />
       ) : (
         <div className="cp-scanner-panel bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 rounded-3xl shadow-xl overflow-hidden">
           {/* Tab navigation */}
@@ -151,21 +236,53 @@ export const ScanView: React.FC = () => {
 
           {/* Form Content */}
           <div className="p-6 md:p-8">
-            {activeTab === 'url' && (
-              <UrlScanner onScan={handleUrlScan} isLoading={isLoading} />
+            {scanError && (
+              <div role="alert" className="mb-5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-sm text-rose-700 dark:text-rose-300 flex flex-wrap items-center justify-between gap-3">
+                <span>{scanError}</span>
+                {needsGuestSessionRetry && (
+                  <Button size="sm" isLoading={retryingGuestSession} onClick={() => void retryGuestScanSession()}>
+                    Retry guest session
+                  </Button>
+                )}
+              </div>
             )}
-            {activeTab === 'qr' && (
+            {authLoading || guestLoading ? (
+              <p role="status" className="py-8 text-center text-sm text-slate-500">
+                Preparing your CyberProof session...
+              </p>
+            ) : activeTab !== 'url' && !token ? (
+              <div className="max-w-xl mx-auto py-8 text-center space-y-4">
+                <Lock className="w-8 h-8 mx-auto text-amber-500" />
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Member account required
+                </h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  QR, email, message, and OTP-situation analysis require a signed-in member account. Guest URL scanning remains available.
+                </p>
+                <Button
+                  variant="primary"
+                  onClick={() => navigateTo('account')}
+                  leftIcon={<UserRound className="w-4 h-4" />}
+                >
+                  Sign in or register
+                </Button>
+              </div>
+            ) : activeTab === 'url' ? (
+              <UrlScanner
+                onScan={handleUrlScan}
+                isLoading={isLoading}
+                initialUrl={currentParams.url}
+                initialUrlRequestId={currentParams.urlRequestId}
+              />
+            ) : activeTab === 'qr' ? (
               <QrScanner onScan={handleQrScan} isLoading={isLoading} />
-            )}
-            {activeTab === 'email' && (
+            ) : activeTab === 'email' ? (
               <EmailScanner onScan={handleEmailScan} isLoading={isLoading} />
-            )}
-            {activeTab === 'message' && (
+            ) : activeTab === 'message' ? (
               <MessageScanner onScan={handleMessageScan} isLoading={isLoading} />
-            )}
-            {activeTab === 'otp-situation' && (
+            ) : activeTab === 'otp-situation' ? (
               <OtpScanner onScan={handleOtpScan} isLoading={isLoading} />
-            )}
+            ) : null}
           </div>
         </div>
       )}

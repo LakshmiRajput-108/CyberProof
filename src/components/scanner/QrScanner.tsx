@@ -10,11 +10,12 @@ interface QrScannerProps {
 export const QrScanner: React.FC<QrScannerProps> = ({ onScan, isLoading }) => {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const sampleQrs = [
-    { label: 'Restaurant Table QR (Safe Menu)', payload: 'https://bistro-menu-digital.com/table/14' },
-    { label: 'Street Parking Meter Sticker (Suspicious)', payload: 'https://pay-city-parking-direct.xyz/quick-pay' },
-    { label: 'WiFi Access Code QR (Informational)', payload: 'WIFI:S:GuestNet;T:WPA;P:Welcome2026;;' },
+    { label: 'Restaurant menu example', payload: 'https://bistro-menu-digital.com/table/14' },
+    { label: 'Parking payment example', payload: 'https://pay-city-parking-direct.xyz/quick-pay' },
+    { label: 'WiFi payload example', payload: 'WIFI:S:GuestNet;T:WPA;P:Welcome2026;;' },
   ];
 
   const handleDrag = (e: React.DragEvent) => {
@@ -33,16 +34,26 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, isLoading }) => {
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
+      if (!file.type.startsWith('image/')) {
+        setSelectedFile(null);
+        setFileError('Choose an image file. QR image decoding is not available.');
+        return;
+      }
       setSelectedFile(file.name);
-      // Simulate reading QR content from file
-      onScan('https://verify-order-tracking.xyz/secure-pickup?id=83921');
+      setFileError(null);
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0].name);
-      onScan('https://verify-order-tracking.xyz/secure-pickup?id=83921');
+      const file = e.target.files[0];
+      if (!file.type.startsWith('image/')) {
+        setSelectedFile(null);
+        setFileError('Choose an image file. QR image decoding is not available.');
+        return;
+      }
+      setSelectedFile(file.name);
+      setFileError(null);
     }
   };
 
@@ -53,7 +64,7 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, isLoading }) => {
           QR Code Image or Screenshot
         </label>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Upload a photo or screenshot of any QR code to inspect its underlying target destination before your phone opens it.
+          Image upload is preview-only. QR image decoding is not available; use a sample text payload below to test the member-only text analyzer.
         </p>
       </div>
 
@@ -73,6 +84,7 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, isLoading }) => {
           type="file"
           id="qr-file-input"
           accept="image/*"
+          disabled={isLoading}
           onChange={handleFileInput}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
@@ -84,7 +96,7 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, isLoading }) => {
 
           <div>
             <p className="text-sm font-semibold text-slate-900 dark:text-white">
-              {selectedFile ? `Loaded: ${selectedFile}` : 'Drop QR code screenshot here, or browse'}
+              {selectedFile ? `Preview selected: ${selectedFile}` : 'Drop an image here for a filename preview'}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Supports PNG, JPG, WebP, or SVG images
@@ -101,9 +113,12 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, isLoading }) => {
       <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-100 dark:bg-white/5 text-xs text-slate-600 dark:text-slate-400">
         <AlertCircle className="w-4 h-4 text-teal-500 shrink-0 mt-0.5" />
         <span>
-          <strong>Safe Sandbox:</strong> Uploading an image extracts the destination link without launching browser windows or activating camera tracking.
+          <strong>Image decoding unsupported:</strong> Selecting or dropping a file does not decode, upload, or analyze it.
         </span>
       </div>
+      {fileError && (
+        <p role="alert" className="text-xs text-rose-600 dark:text-rose-400">{fileError}</p>
+      )}
 
       {/* Sample QR presets */}
       <div className="space-y-2 pt-2">
@@ -117,6 +132,7 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, isLoading }) => {
               key={s.label}
               type="button"
               onClick={() => onScan(s.payload)}
+              disabled={isLoading}
               className="p-3 text-left rounded-xl bg-slate-50 dark:bg-white/[0.03] hover:bg-slate-100 dark:hover:bg-white/[0.06] border border-slate-200 dark:border-white/10 text-xs transition-colors"
             >
               <p className="font-semibold text-slate-900 dark:text-white">{s.label}</p>

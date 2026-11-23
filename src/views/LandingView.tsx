@@ -26,7 +26,7 @@ const rules = [
 
 const checks = [
   { title: 'Website / URL', text: 'Check a site before you trust it.', icon: Search, tab: 'url' },
-  { title: 'QR Code', text: 'See where a QR code really leads.', icon: QrCode, tab: 'qr' },
+  { title: 'QR Code', text: 'Try a sample QR text payload with basic heuristics. Image decoding is unavailable.', icon: QrCode, tab: 'qr' },
   { title: 'Email', text: 'Inspect suspicious emails and requests.', icon: Mail, tab: 'email' },
   { title: 'Message / SMS', text: 'Check links, urgency and payment traps.', icon: MessageSquare, tab: 'message' },
   { title: 'Caller', text: 'Triage a suspicious call scenario.', icon: Phone, tab: 'otp-situation' },
@@ -64,11 +64,11 @@ export const LandingView: React.FC = () => {
           <div className="cp-hero-overlay" />
           <div className="cp-floating-card cp-floating-top">
             <div className="cp-mini-icon"><ShieldCheck className="w-5 h-5" /></div>
-            <div><strong>Protection check</strong><span>Explainable evidence</span></div>
+            <div><strong>Analysis preview</strong><span>Explainable signals</span></div>
           </div>
           <div className="cp-floating-card cp-floating-bottom">
             <span className="cp-score-ring">78</span>
-            <div><strong>Trust signal</strong><span>Review before you act</span></div>
+            <div><strong>Illustrative demo score</strong><span>Not a live or verified rating</span></div>
           </div>
         </div>
       </section>
@@ -124,7 +124,7 @@ export const LandingView: React.FC = () => {
             <div className="cp-pathway-copy"><span>01 • VERIFY</span><h3>Pre-click protection</h3><p>Check a suspicious URL, QR destination, email or message before you interact.</p><button onClick={() => goScan()}>Open CyberProof analysis <ArrowRight className="w-4 h-4" /></button></div>
           </article>
           <button className="cp-pathway-card cp-pathway-card-image" onClick={() => navigateTo('incident-check')}><img src="/assets/protection-first.png" alt="" /><span>02 • RESPOND</span><h3>Got Scammed?</h3><p>If something already happened, move from confusion to a guided recovery path.</p><b>Start recovery <ArrowRight className="w-4 h-4" /></b></button>
-          <button className="cp-pathway-card cp-pathway-card-image" onClick={() => navigateTo('threat-pulse')}><img src="/assets/protection-second.png" alt="" /><span>03 • MONITOR</span><h3>Threat Radar</h3><p>See scam patterns, awareness topics and recent threat information in one place.</p><b>Open Threat Radar <ArrowRight className="w-4 h-4" /></b></button>
+          <button className="cp-pathway-card cp-pathway-card-image" onClick={() => navigateTo('threat-pulse')}><img src="/assets/protection-second.png" alt="" /><span>03 • MONITOR</span><h3>Threat Radar</h3><p>Explore educational scam patterns and awareness topics. This is not a live attack feed.</p><b>Open Threat Radar <ArrowRight className="w-4 h-4" /></b></button>
         </div>
       </section>
 
@@ -164,7 +164,7 @@ export const LandingView: React.FC = () => {
 
       {/* EXTENSION */}
       <section className="cp-section cp-extension">
-        <div className="cp-extension-copy"><span className="cp-kicker">07 / CYBERPROOF GUARD</span><h2>Protection that<br /><span>travels with you.</span></h2><p>Premium members can use the CyberProof Guard browser extension to check websites and messages without repeatedly opening the main site.</p><div className="flex flex-wrap gap-3"><Button variant="primary" onClick={() => navigateTo('extension-preview')} rightIcon={<ArrowRight className="w-4 h-4" />}>Preview Guard</Button><Button variant="outline" onClick={() => navigateTo('membership')}>See membership</Button></div></div><div className="cp-extension-visual cp-hover-3d"><Chrome className="w-8 h-8" /><strong>CyberProof Guard</strong><span>Quick check • Message check • Website check</span><div className="cp-extension-status"><ShieldCheck className="w-4 h-4" /> Protection preview</div></div>
+        <div className="cp-extension-copy"><span className="cp-kicker">07 / CYBERPROOF GUARD</span><h2>Browser extension<br /><span>in development.</span></h2><p>Explore the conceptual CyberProof Guard sandbox. The installable extension and live browser checks are not available yet, and Premium does not unlock them.</p><div className="flex flex-wrap gap-3"><Button variant="primary" onClick={() => navigateTo('extension-preview')} rightIcon={<ArrowRight className="w-4 h-4" />}>Preview Guard</Button><Button variant="outline" onClick={() => navigateTo('membership')}>See membership</Button></div></div><div className="cp-extension-visual cp-hover-3d"><Chrome className="w-8 h-8" /><strong>CyberProof Guard</strong><span>Concept preview • Not installable</span><div className="cp-extension-status"><ShieldCheck className="w-4 h-4" /> In development</div></div>
       </section>
 
       {/* OFFICIAL REPORTING CTA */}

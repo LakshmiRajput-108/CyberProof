@@ -13,6 +13,8 @@ import { prisma } from "./prisma/client";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
+import { requireAuth, AuthenticatedRequest } from "./middleware/authMiddleware";
+import { router as guestRouter } from "./routes/guest";
 
 dotenv.config();
 
@@ -35,6 +37,7 @@ app.use("/api", apiLimiter);
 
 // Routes
 app.use("/api/auth", authRouter);
+app.use("/api/guest", guestRouter);
 app.use("/api/analyze", analyzeRouter);
 app.use("/api/scan", scanRouter);
 app.use("/api/history", historyRouter);
@@ -44,86 +47,32 @@ app.use("/api/incidents", incidentsRouter);
 app.use("/api/learn", learnRouter);
 app.use("/api/threat-pulse", threatPulseRouter);
 
-app.post("/api/data/clear", async (req, res) => {
+app.post("/api/data/clear", requireAuth, async (req, res) => {
   try {
-    await prisma.scan.deleteMany();
-    await prisma.watchlistItem.deleteMany();
-    res.json({ success: true });
-  } catch (e) {
-    res.status(500).json({ error: "Internal server error" });
+    const userId = (req as AuthenticatedRequest).userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    await Promise.all([
+      prisma.scan.deleteMany({ where: { userId } }),
+      prisma.watchlistItem.deleteMany({ where: { userId } }),
+      prisma.incident.deleteMany({ where: { userId } }),
+    ]);
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("User data clear error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-app.post("/api/data/reset", async (req, res) => {
-  try {
-    await prisma.scan.deleteMany();
-    await prisma.watchlistItem.deleteMany();
-    await prisma.incident.deleteMany();
-    
-    // Seed Learn Articles and Threat Pulse
-    await prisma.learnArticle.deleteMany();
-    await prisma.threatPulse.deleteMany();
-
-    await prisma.learnArticle.createMany({
-      data: [
-        {
-          title: "The Anatomy of a Modern Phishing Link",
-          slug: "anatomy-of-modern-phishing",
-          summary: "Phishing links have evolved beyond obvious misspellings. Learn how to spot homograph attacks, abused trusted services, and hidden redirects.",
-          content: "Modern phishing relies on sophisticated deception. Attackers often use Internationalized Domain Names (IDNs) to substitute characters like 'a' with identical-looking Cyrillic characters (homograph attacks).\n\nAdditionally, they abuse legitimate services. A link might start with a trusted URL like `https://google.com/url?q=` or use legitimate cloud hosting platforms to evade initial detection.\n\n### How to Protect Yourself\n1. **Expand Short Links:** Never click a `bit.ly` or `tinyurl.com` link without expanding it first.\n2. **Check the SSL Certificate:** Ensure it belongs to the actual organization.\n3. **Use CyberProof:** Our engine decodes these redirects for you safely.",
-          category: "Link Safety",
-          difficulty: "Beginner",
-          readingTime: "4 min read",
-          status: "published"
-        },
-        {
-          title: "Why OTPs Should Never Be Shared",
-          slug: "otp-safety-principles",
-          summary: "Understand the technical architecture of One-Time Passwords, why support staff will never need them, and how attackers use them to bypass 2FA.",
-          content: "A One-Time Password (OTP) is a cryptographic token designed to verify that the person attempting an action is currently in possession of the registered device.\n\n### The Attack Scenario\nWhen a scammer calls you claiming your account is blocked, they are simultaneously trying to log in or transfer money. The service generates an OTP and sends it to *your* phone. The scammer cannot proceed without it.\n\n### The Golden Rule\n**No legitimate employee, bank official, or support agent will ever ask you to read an OTP to them.** They have internal systems for verification. If someone asks for an OTP, they are an attacker.",
-          category: "Account Security",
-          difficulty: "Essential",
-          readingTime: "3 min read",
-          status: "published"
-        }
-      ]
-    });
-
-    await prisma.threatPulse.createMany({
-      data: [
-        {
-          topic: "Utility Bill Suspension Scams",
-          summary: "Mass SMS campaigns threatening immediate electricity or water disconnection tonight if a small payment is not made.",
-          status: "CRITICAL ALERT",
-          lastUpdated: "2 hours ago",
-          preventiveAction: "Ignore urgent disconnection SMS messages. Verify directly through your official state electricity board app or website.",
-          indicatorsToWatch: JSON.stringify([
-            "SMS received from a standard 10-digit mobile number instead of an official shortcode.",
-            "Contains a link to a secondary WhatsApp chat or unfamiliar payment portal.",
-            "Demands a very small 'processing fee' (e.g., ₹10 or $1)."
-          ])
-        },
-        {
-          topic: "Fake Courier Delivery Fees",
-          summary: "Fraudulent messages impersonating national postal services or major couriers claiming a package is held due to unpaid customs.",
-          status: "ACTIVE TREND",
-          lastUpdated: "5 hours ago",
-          preventiveAction: "Track packages only using tracking numbers you received at the time of purchase, directly on the official courier website.",
-          indicatorsToWatch: JSON.stringify([
-            "Generic links like 'india-post-tracking.update-info.com'.",
-            "Requests for credit card details to pay a minor clearance fee.",
-            "Message sent via iMessage from an iCloud email address."
-          ])
-        }
-      ]
-    });
-
-    res.json({ success: true });
-  } catch (e) {
-    res.status(500).json({ error: "Internal server error" });
-  }
+app.post("/api/data/reset", (_req, res) => {
+  return res.status(403).json({
+    error: "Global data reset is disabled."
+  });
 });
-
 // Centralized Error Handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);

@@ -5,13 +5,12 @@ import {
   ShieldCheck, 
   EyeOff, 
   Code, 
-  Info,
-  Lock
+  Info
 } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 
 export const ExtensionPreviewView: React.FC = () => {
-  const { navigateTo, isPremium } = useAppData();
+  const { navigateTo } = useAppData();
 
   return (
     <div className="space-y-8 pb-16 max-w-6xl mx-auto">
@@ -30,7 +29,7 @@ export const ExtensionPreviewView: React.FC = () => {
             CyberProof Browser Extension
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-xl">
-            Experience how CyberProof operates inside an active web browser. Evaluate Low Risk, High Risk, and Unknown scenarios in real time.
+            Explore an illustrative browser interface. It does not inspect your active tab or perform live checks.
           </p>
         </div>
 
@@ -49,28 +48,12 @@ export const ExtensionPreviewView: React.FC = () => {
         <div className="space-y-0.5">
           <p className="font-semibold text-slate-900 dark:text-white">Conceptual Extension Sandbox</p>
           <p className="leading-relaxed">
-            This interactive simulator demonstrates the standalone extension user experience. It is engineered with strict decoupled APIs so that the UI can be packaged into a Chromium / Firefox WebExtension manifest without modifying the core trust engine.
+            This conceptual simulator is not an installable browser extension. It shows a saved analysis only when one exactly matches a preset domain; otherwise, no risk rating is shown.
           </p>
         </div>
       </div>
 
-      {/* Interactive Browser Sandbox or Locked State */}
-      {!isPremium ? (
-        <div className="p-12 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mx-auto">
-            <Lock className="w-8 h-8" />
-          </div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Premium Feature Locked</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-            The CyberProof Browser Extension is an exclusive feature for CyberProof Protection members. Upgrade to unlock the interactive sandbox and future extension access.
-          </p>
-          <Button variant="primary" onClick={() => navigateTo('membership')}>
-            Unlock Premium Access
-          </Button>
-        </div>
-      ) : (
-        <BrowserSimulation />
-      )}
+      <BrowserSimulation />
 
       {/* Architecture & Privacy Specification */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
@@ -80,7 +63,7 @@ export const ExtensionPreviewView: React.FC = () => {
           </div>
           <h3 className="text-sm font-bold text-slate-900 dark:text-white">Zero Form Reading</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            The extension inspects only the active tab's domain, TLS cipher certificate, and publicly observable HTTP headers. It has ZERO permission to inspect form inputs or password fields.
+            This preview does not access the active tab, forms, or password fields.
           </p>
         </div>
 
@@ -90,7 +73,7 @@ export const ExtensionPreviewView: React.FC = () => {
           </div>
           <h3 className="text-sm font-bold text-slate-900 dark:text-white">User-Controlled Interaction</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            No intrusive full-screen blockades or unsolicited popups. The extension offers a calm, non-disruptive badge in the browser toolbar that users check at their discretion.
+            No live browser extension is installed, and this preview does not read or alter an active tab.
           </p>
         </div>
 
@@ -100,7 +83,7 @@ export const ExtensionPreviewView: React.FC = () => {
           </div>
           <h3 className="text-sm font-bold text-slate-900 dark:text-white">API-Ready Decoupling</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            The popup is built with modular React and clean JSON interfaces, enabling seamless export to a WebExtension manifest V3 package.
+            Packaging, API integration, and extension permissions are not implemented. This page is a website-only concept.
           </p>
         </div>
       </div>

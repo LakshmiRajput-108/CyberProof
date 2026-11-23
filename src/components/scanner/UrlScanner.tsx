@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../ui/Button';
 import { Globe, ArrowRight, Sparkles } from 'lucide-react';
 
@@ -6,14 +6,30 @@ interface UrlScannerProps {
   onScan: (url: string) => void;
   isLoading: boolean;
   initialUrl?: string;
+  initialUrlRequestId?: number;
 }
 
-export const UrlScanner: React.FC<UrlScannerProps> = ({ onScan, isLoading, initialUrl = '' }) => {
+export const UrlScanner: React.FC<UrlScannerProps> = ({
+  onScan,
+  isLoading,
+  initialUrl = '',
+  initialUrlRequestId,
+}) => {
   const [url, setUrl] = useState(initialUrl);
+  const [urlError, setUrlError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setUrl(initialUrl);
+    setUrlError(null);
+  }, [initialUrl, initialUrlRequestId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!url.trim()) return;
+    if (!url.trim()) {
+      setUrlError('Enter a URL to analyze.');
+      return;
+    }
+    setUrlError(null);
     onScan(url.trim());
   };
 
@@ -24,13 +40,13 @@ export const UrlScanner: React.FC<UrlScannerProps> = ({ onScan, isLoading, initi
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6">
       <div className="space-y-2">
         <label htmlFor="url-input" className="block text-sm font-semibold text-slate-900 dark:text-white">
           Website or Link Address (URL)
         </label>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Enter any full link or domain to evaluate transport encryption, identity stability, and suspicious behavior markers.
+          CyberProof checks the submitted URL text and hostname patterns using heuristics. It does not visit the site or check live certificates, redirects, or threat-intelligence feeds.
         </p>
 
         <div className="relative mt-2">
@@ -42,7 +58,12 @@ export const UrlScanner: React.FC<UrlScannerProps> = ({ onScan, isLoading, initi
             type="text"
             required
             value={url}
-            onChange={e => setUrl(e.target.value)}
+            aria-invalid={Boolean(urlError)}
+            aria-describedby={urlError ? 'url-input-error' : undefined}
+            onChange={e => {
+              setUrl(e.target.value);
+              if (e.target.value.trim()) setUrlError(null);
+            }}
             placeholder="e.g. https://myaccount-security-alert.xyz or github.com"
             className="w-full pl-11 pr-32 py-3.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-mono"
           />
@@ -58,6 +79,11 @@ export const UrlScanner: React.FC<UrlScannerProps> = ({ onScan, isLoading, initi
             </Button>
           </div>
         </div>
+        {urlError && (
+          <p id="url-input-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">
+            {urlError}
+          </p>
+        )}
       </div>
 
       {/* Preset Suggestions */}
@@ -73,6 +99,7 @@ export const UrlScanner: React.FC<UrlScannerProps> = ({ onScan, isLoading, initi
               type="button"
               onClick={() => {
                 setUrl(preset.val);
+                setUrlError(null);
                 onScan(preset.val);
               }}
               className="text-left px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-xs transition-colors"

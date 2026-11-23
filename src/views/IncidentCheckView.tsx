@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAppData } from '../context/AppDataContext';
 import { Button } from '../components/ui/Button';
 import { 
-  AlertOctagon, 
   MessageSquare, 
   Globe, 
   ShieldAlert, 
@@ -15,7 +14,6 @@ import {
   EyeOff,
   Info
 } from 'lucide-react';
-import { API_BASE_URL } from '../config/api';
 import { IncidentCategory } from '../types/incident';
 import { ReadAloudButton, VoiceInputButton } from '../components/accessibility/SpeechControls';
 
@@ -28,8 +26,8 @@ export const IncidentCheckView: React.FC = () => {
   // Form states
   const [senderChannel, setSenderChannel] = useState('SMS');
   const [hasFinancialDemand, setHasFinancialDemand] = useState(false);
-  const [hasUrgencyDeadline, setHasUrgencyDeadline] = useState(true);
-  const [hasLinkOrPhone, setHasLinkOrPhone] = useState(true);
+  const [hasUrgencyDeadline, setHasUrgencyDeadline] = useState(false);
+  const [hasLinkOrPhone, setHasLinkOrPhone] = useState(false);
   const [brandMimicked, setBrandMimicked] = useState('');
   const [situationText, setSituationText] = useState('');
 
@@ -77,45 +75,19 @@ export const IncidentCheckView: React.FC = () => {
     setStep('questions');
   };
 
-  const handleDiagnose = async (e: React.FormEvent) => {
+  const handleDiagnose = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Quick heuristic for UI
-    let calculatedRisk: 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN' = 'LOW';
-    if (hasUrgencyDeadline || hasFinancialDemand || hasLinkOrPhone) calculatedRisk = 'MEDIUM';
-    if ((hasUrgencyDeadline && hasFinancialDemand) || (hasLinkOrPhone && hasFinancialDemand) || selectedCategory === 'otp_situation') {
-      calculatedRisk = 'HIGH';
-    }
-
-    try {
-      await fetch(`${API_BASE_URL}/api/incidents`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          category: selectedCategory,
-          senderChannel,
-          hasFinancialDemand,
-          hasUrgencyDeadline,
-          hasLinkOrPhone,
-          brandMimicked,
-          situationText,
-          riskLevel: calculatedRisk,
-          recommendations: [
-            'DO NOT click the link, download attachments, or share OTPs.',
-            'Block the sender and report the message as spam within your app.',
-            'If you already entered card details, contact your bank immediately to freeze the card.'
-          ]
-        })
-      });
-    } catch (e) {
-      console.error(e);
-    }
-
     setStep('result');
   };
 
   const handleReset = () => {
     setStep('category');
+    setSelectedCategory('suspicious_message');
+    setSenderChannel('SMS');
+    setHasFinancialDemand(false);
+    setHasUrgencyDeadline(false);
+    setHasLinkOrPhone(false);
+    setBrandMimicked('');
     setSituationText('');
   };
 
@@ -294,7 +266,7 @@ export const IncidentCheckView: React.FC = () => {
               Back
             </Button>
             <Button type="submit" variant="primary" size="md" rightIcon={<ArrowRight className="w-4 h-4" />}>
-              Generate Incident Diagnosis
+              Continue to Safety Guidance
             </Button>
           </div>
         </form>
@@ -303,78 +275,78 @@ export const IncidentCheckView: React.FC = () => {
       {/* STEP 3: STRUCTURED DIAGNOSIS RESULT */}
       {step === 'result' && (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
-          <div className="p-6 md:p-8 rounded-3xl bg-rose-50 dark:bg-rose-500/10 border border-rose-300 dark:border-rose-500/30 text-rose-950 dark:text-rose-200 space-y-3 relative">
-            <span className="absolute right-4 top-4"><ReadAloudButton text="Probable Social Engineering / Phishing Attempt. Based on the interaction pattern, this scenario closely matches classic deceptive impersonation." /></span>
-            <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400">
-              <AlertOctagon className="w-6 h-6" />
-              <span className="text-xs font-mono font-bold uppercase tracking-wider">Triage Diagnosis: Elevated Threat Indicators</span>
+          <div className="p-6 md:p-8 rounded-3xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-slate-200 space-y-3 relative">
+            <span className="absolute right-4 top-4"><ReadAloudButton text="Incident analysis is unavailable. No risk assessment was generated and your answers were not submitted." /></span>
+            <div className="flex items-center gap-2 text-teal-700 dark:text-teal-400">
+              <Info className="w-6 h-6" />
+              <span className="text-xs font-mono font-bold uppercase tracking-wider">Incident analysis unavailable</span>
             </div>
             <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white">
-              Probable Social Engineering / Phishing Attempt
+              No risk assessment was generated
             </h2>
             <p className="text-xs md:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-              Based on the interaction pattern ({senderChannel} channel, {hasUrgencyDeadline ? 'artificial urgency' : 'communication'}, and {hasFinancialDemand ? 'financial claims' : 'action requests'}), this scenario closely matches classic deceptive impersonation.
+              Your answers were not sent to the server or stored. This incident-analysis service is unavailable until it can safely associate submissions with the current account or guest session.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 space-y-3 shadow-sm relative">
-              <span className="absolute right-3 top-3"><ReadAloudButton text="What May Have Happened?" /></span>
+              <span className="absolute right-3 top-3"><ReadAloudButton text="No analysis was performed. Your questionnaire responses were not transmitted." /></span>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-teal-500" />
-                <span>1. What May Have Happened?</span>
+                <span>1. Submission status</span>
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                An attacker obtained your contact detail from a bulk data leak or random number generator. They are impersonating {brandMimicked || 'a trusted organization'} to induce panic before you have time to cross-check through official means.
+                No tailored incident result is available. You can still follow the general safety steps below without sharing additional details.
               </p>
             </div>
 
             <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 space-y-3 shadow-sm relative">
-              <span className="absolute right-3 top-3"><ReadAloudButton text="Why It May Be Suspicious? Legitimate organizations rarely impose immediate countdowns. Direct callback numbers and small payment demands are common scam patterns." /></span>
+              <span className="absolute right-3 top-3"><ReadAloudButton text="The incident-analysis service is unavailable, so no risk level or personalized explanation was produced." /></span>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-500" />
-                <span>2. Why It May Be Suspicious?</span>
+                <span>2. Why no diagnosis?</span>
               </h3>
               <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                 <li className="flex items-start gap-2">
                   <span className="text-amber-500 font-bold">•</span>
-                  <span>Legitimate organizations rarely impose immediate countdowns over chat.</span>
+                  <span>The current incident endpoint cannot safely keep records scoped to the current session.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-amber-500 font-bold">•</span>
-                  <span>Direct phone callback numbers provided in SMS are frequently untraceable burner lines.</span>
+                  <span>For your privacy, this page did not submit your questionnaire answers.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-amber-500 font-bold">•</span>
-                  <span>Small payment demands (₹10 - ₹50) are used to extract full card numbers and CVVs.</span>
+                  <span>No risk level or personalized result has been invented.</span>
                 </li>
               </ul>
             </div>
 
             <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 space-y-3 shadow-sm relative">
-              <span className="absolute right-3 top-3"><ReadAloudButton text="What To Check? Open your official app or bookmarked website. Verify the sender. Scan any included link before clicking." /></span>
+              <span className="absolute right-3 top-3"><ReadAloudButton text="For general safety, use an official app or a known bookmark to verify the request, and do not follow unexpected links." /></span>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-blue-500" />
-                <span>3. What To Check?</span>
+                <span>3. General safety checks</span>
               </h3>
               <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 font-bold">•</span>
-                  <span>Open your official installed app or visit the bookmarked website directly.</span>
+                  <span>Contact the organization through its official app, website, or a known phone number.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 font-bold">•</span>
-                  <span>Look at the sender phone number: is it a random 10-digit mobile number instead of an authentic alphanumeric sender header?</span>
+                  <span>Do not rely on contact details or links included in an unexpected message.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 font-bold">•</span>
-                  <span>Scan any included link with CyberProof Scanner before clicking.</span>
+                  <span>Never share passwords, card details, PINs, or verification codes.</span>
                 </li>
               </ul>
             </div>
 
             <div className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-emerald-500/30 space-y-3 shadow-sm relative">
-              <span className="absolute right-3 top-3"><ReadAloudButton text="What To Do Next? Do not click links or share OTPs. Block the sender and report it. If card details were entered, contact the bank immediately." /></span>
+              <span className="absolute right-3 top-3"><ReadAloudButton text="Do not click unexpected links or share verification codes. If you shared financial details, contact your bank using an official channel." /></span>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <span>4. What To Do Next?</span>

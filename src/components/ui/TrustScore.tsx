@@ -2,6 +2,8 @@ import React from 'react';
 import { ShieldCheck, ShieldAlert, AlertTriangle, HelpCircle } from 'lucide-react';
 import { RiskLevel, Scan } from '../../types/scan';
 
+export const TRUST_SCORE_DISCLAIMER = 'Heuristic estimate only; not a verified safety rating.';
+
 export const getTrustScore = (scan: Scan): number => {
   if (!scan.evidence?.length) {
     if (scan.risk_level === 'LOW') return 88;
@@ -28,10 +30,10 @@ export const getTrustScore = (scan: Scan): number => {
 };
 
 export const trustLabel = (score: number) => {
-  if (score >= 80) return 'Safe';
-  if (score >= 60) return 'Caution';
-  if (score >= 40) return 'High Risk';
-  return 'Critical Risk';
+  if (score >= 80) return 'Lower Heuristic Risk';
+  if (score >= 60) return 'Moderate Heuristic Risk';
+  if (score >= 40) return 'Elevated Heuristic Risk';
+  return 'Higher Heuristic Risk';
 };
 
 const tone = (score: number) => {
@@ -59,8 +61,27 @@ export const TrustScore: React.FC<TrustScoreProps> = ({
   className = '',
 }) => {
   const score = providedScore ?? (scan ? getTrustScore(scan) : 0);
-  const label = trustLabel(score);
-  const { accent, track, icon: Icon } = tone(score);
+  const isUnknownScan =
+    !!scan &&
+    (scan.analysis_type === 'url' ||
+      scan.analysis_type === 'otp-situation' ||
+      scan.analysis_type === 'qr') &&
+    scan.risk_level === 'UNKNOWN';
+  const isLowEmail = scan?.analysis_type === 'email' && scan.risk_level === 'LOW';
+  const isLowMessage = scan?.analysis_type === 'message' && scan.risk_level === 'LOW';
+  const isNeutralAssessment = isUnknownScan || isLowEmail || isLowMessage;
+  const label = isUnknownScan
+    ? 'Insufficient Information'
+    : isLowEmail || isLowMessage
+      ? 'Limited Indicators Detected'
+      : trustLabel(score);
+  const scoreTone = tone(score);
+  const accent = isNeutralAssessment ? '#64748b' : scoreTone.accent;
+  const track = isNeutralAssessment ? 'rgba(100,116,139,.16)' : scoreTone.track;
+  const Icon = isNeutralAssessment ? HelpCircle : scoreTone.icon;
+  const disclaimer = isUnknownScan
+    ? 'Insufficient detail for a heuristic estimate; not a verified safety rating.'
+    : TRUST_SCORE_DISCLAIMER;
   const sizes = {
     sm: { box: 58, text: 18, stroke: 7, label: '9px' },
     md: { box: 92, text: 27, stroke: 8, label: '10px' },
@@ -73,25 +94,45 @@ export const TrustScore: React.FC<TrustScoreProps> = ({
   const dash = circumference * (score / 100);
 
   return (
-    <div className={`flex flex-col items-center ${className}`} aria-label={`Trust score ${score}, ${label}`}>
+    <div
+      className={`flex flex-col items-center ${className}`}
+      aria-label={isNeutralAssessment ? `Assessment status: ${label}` : `Heuristic score ${score}, ${label}`}
+    >
       <div className="relative" style={{ width: sizes.box, height: sizes.box }}>
         <svg width={sizes.box} height={sizes.box} viewBox="0 0 100 100" className="-rotate-90">
           <circle cx="50" cy="50" r={radius} fill="none" stroke={track} strokeWidth={sizes.stroke} />
-          <circle
-            cx="50" cy="50" r={radius} fill="none" stroke={accent} strokeWidth={sizes.stroke}
-            strokeLinecap="round" strokeDasharray={`${dash} ${circumference}`} className="transition-all duration-700"
-          />
+          {!isNeutralAssessment && (
+            <circle
+              cx="50" cy="50" r={radius} fill="none" stroke={accent} strokeWidth={sizes.stroke}
+              strokeLinecap="round" strokeDasharray={`${dash} ${circumference}`} className="transition-all duration-700"
+            />
+          )}
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ color: 'var(--cp-ink)' }}>
-          <span style={{ fontSize: sizes.text, lineHeight: 1, fontWeight: 850, letterSpacing: '-.04em' }}>{score}</span>
-          {size !== 'sm' && <span className="mt-1 uppercase tracking-[.14em]" style={{ fontSize: '7px', color: 'var(--cp-stone)' }}>trust</span>}
-        </div>
+        {isNeutralAssessment ? (
+          <div className="absolute inset-0 flex items-center justify-center" style={{ color: accent }}>
+            <Icon style={{ width: sizes.text, height: sizes.text }} aria-hidden="true" />
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ color: 'var(--cp-ink)' }}>
+            <span style={{ fontSize: sizes.text, lineHeight: 1, fontWeight: 850, letterSpacing: '-.04em' }}>{score}</span>
+            {size !== 'sm' && <span className="mt-1 uppercase tracking-[.14em]" style={{ fontSize: '7px', color: 'var(--cp-stone)' }}>heuristic</span>}
+          </div>
+        )}
       </div>
-      {showLabel && <span className="mt-2 uppercase tracking-[.14em] font-extrabold" style={{ fontSize: sizes.label, color: 'var(--cp-stone)' }}>Trust Score</span>}
-      {showStatus && (
+      {showLabel && (
+        <span className="mt-2 uppercase tracking-[.14em] font-extrabold" style={{ fontSize: sizes.label, color: 'var(--cp-stone)' }}>
+          {isNeutralAssessment ? 'Assessment Status' : 'Heuristic Score'}
+        </span>
+      )}
+      {(showStatus || isNeutralAssessment) && (
         <span className="mt-1 inline-flex items-center gap-1.5 font-bold" style={{ fontSize: sizes.label, color: accent }}>
           <Icon className="w-3 h-3" /> {label}
         </span>
+      )}
+      {showLabel && (
+        <p className="mt-1 max-w-[190px] text-center text-[10px] leading-tight text-[var(--cp-stone)]">
+          {disclaimer}
+        </p>
       )}
     </div>
   );

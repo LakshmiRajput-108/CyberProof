@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAppData } from '../context/AppDataContext';
+import { useAuth } from '../context/AuthContext';
 import { HistoryService } from '../services/historyService';
 import { RiskBadge } from '../components/ui/RiskBadge';
 import { Button } from '../components/ui/Button';
@@ -16,16 +17,65 @@ import { TrustScore } from '../components/ui/TrustScore';
 
 export const HistoryView: React.FC = () => {
   const { navigateTo } = useAppData();
+  const { user, guest, loading: authLoading, guestLoading, ensureGuestSession } = useAuth();
+  const ownerKey = user ? `member:${user.id}` : guest ? `guest:${guest.sessionId}` : null;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRisk, setSelectedRisk] = useState<RiskLevel | 'ALL'>('ALL');
   const [selectedType, setSelectedType] = useState<AnalysisType | 'ALL'>('ALL');
   const [uniqueHistories, setUniqueHistories] = useState<WebsiteHistory[]>([]);
+  const [loadedOwnerKey, setLoadedOwnerKey] = useState<string | null>(null);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const retryHistory = async () => {
+    setHistoryError(null);
+    if (guest) {
+      try {
+        await ensureGuestSession();
+      } catch {
+        setHistoryError('Could not restore your guest session. Check your connection and retry.');
+        return;
+      }
+    }
+    setRetryCount(count => count + 1);
+  };
 
   useEffect(() => {
-    HistoryService.getAllUniqueDomains().then(setUniqueHistories);
-  }, []);
+    let active = true;
+    setUniqueHistories([]);
+    setLoadedOwnerKey(null);
+    setHistoryError(null);
+    if (authLoading || guestLoading) return () => { active = false; };
+    if (!ownerKey) {
+      setLoadingHistory(false);
+      return () => { active = false; };
+    }
 
-  const filteredHistories = uniqueHistories.filter(item => {
+    setLoadingHistory(true);
+    HistoryService.getAllUniqueDomains()
+      .then(histories => {
+        if (active) {
+          setUniqueHistories(histories);
+          setLoadedOwnerKey(ownerKey);
+        }
+      })
+      .catch(error => {
+        if (active) {
+          setHistoryError(error instanceof Error ? error.message : 'Could not load your scan history.');
+        }
+      })
+      .finally(() => {
+        if (active) setLoadingHistory(false);
+      });
+
+    return () => { active = false; };
+  }, [ownerKey, authLoading, guestLoading, retryCount]);
+
+  const visibleHistories = loadedOwnerKey === ownerKey ? uniqueHistories : [];
+  const isLoadingHistory = authLoading || guestLoading || loadingHistory ||
+    (ownerKey !== null && loadedOwnerKey !== ownerKey && !historyError);
+  const filteredHistories = visibleHistories.filter(item => {
     const matchesSearch = item.domain.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.target.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRisk = selectedRisk === 'ALL' || item.current_risk === selectedRisk;
@@ -79,15 +129,15 @@ export const HistoryView: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="cp-history-card p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10">
           <span className="text-[10px] uppercase tracking-wider text-slate-400">Analyses</span>
-          <strong className="block mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{uniqueHistories.reduce((n,h)=>n+h.scan_count,0)}</strong>
+          <strong className="block mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{visibleHistories.reduce((n,h)=>n+h.scan_count,0)}</strong>
         </div>
         <div className="cp-history-card p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10">
           <span className="text-[10px] uppercase tracking-wider text-slate-400">Tracked Websites</span>
-          <strong className="block mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{uniqueHistories.length}</strong>
+          <strong className="block mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{visibleHistories.length}</strong>
         </div>
         <div className="cp-history-card p-4 rounded-2xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10">
           <span className="text-[10px] uppercase tracking-wider text-slate-400">High Risk Flagged</span>
-          <strong className="block mt-1 text-2xl font-extrabold text-rose-600 dark:text-rose-400">{uniqueHistories.filter(h=>h.current_risk==='HIGH').length}</strong>
+          <strong className="block mt-1 text-2xl font-extrabold text-rose-600 dark:text-rose-400">{visibleHistories.filter(h=>h.current_risk==='HIGH').length}</strong>
         </div>
       </div>
 
@@ -140,7 +190,17 @@ export const HistoryView: React.FC = () => {
       </div>
 
       {/* History Items Grid */}
-      {filteredHistories.length === 0 ? (
+      {historyError ? (
+        <div role="alert" className="cp-history-card p-8 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-rose-300 dark:border-rose-500/30 text-center space-y-3">
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">History unavailable</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{historyError}</p>
+          <Button variant="primary" size="sm" onClick={() => void retryHistory()}>Retry</Button>
+        </div>
+      ) : isLoadingHistory ? (
+        <div role="status" className="cp-history-card p-8 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 text-center text-sm text-slate-500">
+          Loading your scan history...
+        </div>
+      ) : filteredHistories.length === 0 ? (
         <div className="cp-history-card p-12 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 text-center space-y-3">
           <History className="w-8 h-8 text-slate-400 mx-auto" />
           <h3 className="text-base font-bold text-slate-900 dark:text-white">No Matching History</h3>

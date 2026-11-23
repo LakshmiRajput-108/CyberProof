@@ -14,12 +14,13 @@ import {
   EyeOff
 } from 'lucide-react';
 import { ThemeMode } from '../types/user';
+import { useAuth } from '../context/AuthContext';
 
 export const ProfilePrivacyView: React.FC = () => {
-  const { scans, watchlist, clearAllHistory, resetDemoData } = useAppData();
+  const { scans, watchlist } = useAppData();
   const { theme, setTheme } = useTheme();
+  const { user, guest, loading } = useAuth();
 
-  const [confirmClear, setConfirmClear] = useState(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
   const handleExportData = () => {
@@ -39,17 +40,6 @@ export const ProfilePrivacyView: React.FC = () => {
     setActionNotice('Data export downloaded as JSON file.');
   };
 
-  const handleClear = () => {
-    clearAllHistory();
-    setConfirmClear(false);
-    setActionNotice('All stored scans and security history cleared from local storage.');
-  };
-
-  const handleResetDefaults = () => {
-    resetDemoData();
-    setActionNotice('Demo records and sample watchlist restored to factory baseline.');
-  };
-
   return (
     <div className="space-y-10 pb-16 max-w-4xl mx-auto">
       {/* Header */}
@@ -61,7 +51,7 @@ export const ProfilePrivacyView: React.FC = () => {
           Profile & Privacy Center
         </h1>
         <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-          Control your local data retention, theme preferences, and review the CyberProof privacy architecture.
+          Review your account session, theme preferences, and how CyberProof stores submitted data.
         </p>
       </div>
 
@@ -79,8 +69,20 @@ export const ProfilePrivacyView: React.FC = () => {
             <User className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Local Explorer Profile</h2>
-            <p className="text-xs text-slate-500">Plan: CyberProof Free • {scans.length} Scans in Browser Vault</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">CyberProof Session</h2>
+            <p className="text-xs text-slate-500">
+              {loading
+                ? 'Checking account tier…'
+                : user
+                  ? `Account tier: ${user.tier}`
+                  : guest
+                    ? 'Guest session · paid membership is not currently available'
+                    : 'Paid membership is not currently available'}
+              {' • '}{scans.length} scans loaded for this session
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              Paid membership activation and billing are unavailable. The installable browser extension is in development and is not unlocked by membership.
+            </p>
           </div>
         </div>
 
@@ -134,11 +136,10 @@ export const ProfilePrivacyView: React.FC = () => {
               <span>What CyberProof Analyzes</span>
             </h3>
             <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
-              <li>• Public domain registration and host age</li>
-              <li>• Transport Layer Security (TLS/HTTPS) cipher chains</li>
-              <li>• Publicly served HTTP security headers</li>
-              <li>• Behavioral redirect pathways</li>
-              <li>• Form target URLs (where credentials would be sent)</li>
+              <li>• URL syntax, hostname patterns, and risk-related words (heuristics)</li>
+              <li>• Submitted text for QR, email, message, and OTP-situation analysis</li>
+              <li>• Incident details that you choose to submit</li>
+              <li>• No live site visit, certificate check, redirect inspection, or threat-feed lookup is performed by URL analysis</li>
             </ul>
           </div>
 
@@ -148,11 +149,8 @@ export const ProfilePrivacyView: React.FC = () => {
               <span>What CyberProof NEVER Requests</span>
             </h3>
             <ul className="space-y-1.5 text-xs text-rose-950 dark:text-rose-300 font-medium">
-              <li>✕ Account passwords or PIN codes</li>
-              <li>✕ SMS or authenticator One-Time Passwords (OTPs)</li>
-              <li>✕ Credit card numbers or CVV security codes</li>
-              <li>✕ Private recovery keys or seed phrases</li>
-              <li>✕ Authentication tokens or session cookies</li>
+              <li>CyberProof does not ask you to enter passwords, PINs, OTPs, card details, or recovery keys.</li>
+              <li>Do not paste secrets into free-text fields; submitted text is sent to the backend for processing.</li>
             </ul>
           </div>
         </div>
@@ -160,7 +158,7 @@ export const ProfilePrivacyView: React.FC = () => {
         <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 text-xs text-slate-600 dark:text-slate-300 space-y-1">
           <p className="font-semibold text-slate-900 dark:text-white">Where is my data stored?</p>
           <p className="leading-relaxed">
-            All analysis history, snapshots, and watchlist items are stored exclusively within your browser's private local storage. No remote servers track your personal browsing habits.
+            Scan history and Site Intelligence entries are stored in the CyberProof backend and scoped to your account or guest-session ID. Incident submission is currently unavailable and this page does not send or store incident answers. Browser local storage keeps the session token and interface preferences. Do not enter sensitive secrets into analysis text.
           </p>
         </div>
       </div>
@@ -168,8 +166,8 @@ export const ProfilePrivacyView: React.FC = () => {
       {/* 3. Data Controls */}
       <div className="p-6 md:p-8 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm space-y-6">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Data Management & Purge Controls</h2>
-          <p className="text-xs text-slate-500">You maintain absolute ownership over your recorded security history.</p>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Data Export and Controls</h2>
+          <p className="text-xs text-slate-500">Export is available. Server-side deletion and demo reset are unavailable.</p>
         </div>
 
         <div className="flex flex-wrap gap-4 pt-2">
@@ -185,38 +183,20 @@ export const ProfilePrivacyView: React.FC = () => {
           <Button
             variant="outline"
             size="md"
-            onClick={handleResetDefaults}
+            disabled
             leftIcon={<RotateCcw className="w-4 h-4" />}
           >
-            Restore Default Demo Scans
+            Demo reset unavailable
           </Button>
 
-          {!confirmClear ? (
-            <Button
-              variant="danger"
-              size="md"
-              onClick={() => setConfirmClear(true)}
-              leftIcon={<Trash2 className="w-4 h-4" />}
-            >
-              Clear All Stored History
-            </Button>
-          ) : (
-            <div className="flex items-center gap-2 p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs">
-              <span className="text-rose-600 dark:text-rose-400 font-bold">Are you sure?</span>
-              <button
-                onClick={handleClear}
-                className="px-3 py-1 bg-rose-600 text-white rounded-lg font-semibold hover:bg-rose-500"
-              >
-                Yes, Delete Everything
-              </button>
-              <button
-                onClick={() => setConfirmClear(false)}
-                className="px-2 py-1 text-slate-500 hover:text-slate-700"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
+          <Button
+            variant="danger"
+            size="md"
+            disabled
+            leftIcon={<Trash2 className="w-4 h-4" />}
+          >
+            History deletion unavailable
+          </Button>
         </div>
       </div>
     </div>

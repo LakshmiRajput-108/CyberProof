@@ -22,6 +22,7 @@ model User {
 model Scan {
   id                  String   @id @default(cuid())
   userId              String?
+  guestSessionId       String?
   target              String
   domain              String
   analysis_type       String
@@ -37,6 +38,7 @@ model Scan {
 model WatchlistItem {
   id           String   @id @default(cuid())
   userId       String?
+  guestSessionId String?
   domain       String
   target       String
   added_at     DateTime @default(now())

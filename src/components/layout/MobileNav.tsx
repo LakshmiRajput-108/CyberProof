@@ -1,10 +1,10 @@
 import React from 'react';
 import { useAppData, AppView } from '../../context/AppDataContext';
-import { X, ShieldCheck, Search, History, BookmarkCheck, AlertOctagon, Radio, BookOpen, Sparkles, User, Code2, HelpCircle } from 'lucide-react';
+import { X, ShieldCheck, Search, History, BookmarkCheck, AlertOctagon, Radio, BookOpen, Sparkles, User, Code2, HelpCircle, LayoutDashboard } from 'lucide-react';
 
 interface MobileNavProps { isOpen: boolean; onClose: () => void; }
 const items: {id: AppView; label: string; icon: React.ElementType}[] = [
-  {id:'landing',label:'Home',icon:ShieldCheck}, {id:'scan',label:'Scan & Analyse',icon:Search}, {id:'watchlist',label:'Site Intelligence',icon:BookmarkCheck}, {id:'incident-check',label:'Got Scammed?',icon:AlertOctagon}, {id:'threat-pulse',label:'Threat Radar',icon:Radio}, {id:'learn',label:'Learn',icon:BookOpen}, {id:'history',label:'Security History',icon:History}, {id:'membership',label:'Membership',icon:Sparkles}, {id:'help-center',label:'Help Center',icon:HelpCircle}, {id:'profile',label:'Profile & Privacy',icon:User}, {id:'developers',label:'Developers',icon:Code2},
+  {id:'landing',label:'Home',icon:ShieldCheck}, {id:'scan',label:'Scan & Analyse',icon:Search}, {id:'dashboard',label:'Dashboard',icon:LayoutDashboard}, {id:'watchlist',label:'Site Intelligence',icon:BookmarkCheck}, {id:'incident-check',label:'Got Scammed?',icon:AlertOctagon}, {id:'threat-pulse',label:'Threat Radar',icon:Radio}, {id:'learn',label:'Learn',icon:BookOpen}, {id:'history',label:'Security History',icon:History}, {id:'membership',label:'Membership',icon:Sparkles}, {id:'help-center',label:'Help Center',icon:HelpCircle}, {id:'profile',label:'Profile & Privacy',icon:User}, {id:'developers',label:'Developers',icon:Code2},
 ];
 export const MobileNav: React.FC<MobileNavProps> = ({isOpen,onClose}) => {
   const {activeView,navigateTo}=useAppData();
