@@ -6,15 +6,23 @@ interface ScanProgressProps {
   stage: ScanStage;
   percent: number;
   message: string;
+  isUrlAnalysis: boolean;
 }
 
-export const ScanProgress: React.FC<ScanProgressProps> = ({ stage, percent, message }) => {
-  const steps = [
-    { key: 'preparing', label: 'Preparing analysis' },
-    { key: 'checking', label: 'Checking available signals' },
-    { key: 'organizing', label: 'Organizing evidence' },
-    { key: 'explaining', label: 'Preparing explanation' },
-  ];
+export const ScanProgress: React.FC<ScanProgressProps> = ({ stage, percent, message, isUrlAnalysis }) => {
+  const steps = isUrlAnalysis
+    ? [
+        { key: 'preparing', label: 'Preparing submitted URL' },
+        { key: 'checking', label: 'Checking URL text and hostname patterns' },
+        { key: 'organizing', label: 'Organizing heuristic findings' },
+        { key: 'explaining', label: 'Preparing explanation' },
+      ]
+    : [
+        { key: 'preparing', label: 'Preparing analysis' },
+        { key: 'checking', label: 'Reviewing submitted content' },
+        { key: 'organizing', label: 'Organizing findings' },
+        { key: 'explaining', label: 'Preparing explanation' },
+      ];
 
   const getStepStatus = (stepKey: string) => {
     const order = ['preparing', 'checking', 'organizing', 'explaining', 'complete'];
@@ -36,7 +44,9 @@ export const ScanProgress: React.FC<ScanProgressProps> = ({ stage, percent, mess
           {message}
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          CyberProof is inspecting observable technical markers and reputation signals.
+          {isUrlAnalysis
+            ? 'Progress is simulated. URL analysis checks submitted text and hostname patterns only; it does not open the site or perform browser, certificate, redirect, reputation, or external database checks.'
+            : 'Progress is simulated. The completed analysis is shown only after the server responds.'}
         </p>
       </div>
 
@@ -49,7 +59,7 @@ export const ScanProgress: React.FC<ScanProgressProps> = ({ stage, percent, mess
           />
         </div>
         <div className="flex justify-between text-[11px] font-mono text-slate-400">
-          <span>Processing signals</span>
+          <span>Simulated progress</span>
           <span>{percent}%</span>
         </div>
       </div>

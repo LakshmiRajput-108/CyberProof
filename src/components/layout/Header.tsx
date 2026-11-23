@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useAppData } from '../../context/AppDataContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { Menu, Search, ShieldCheck, Sun, Moon, Monitor, History, UserRound, Volume2, Minus, Plus, Globe2, ChevronDown, Code2 } from 'lucide-react';
 import { VoiceInputButton } from '../accessibility/SpeechControls';
 
@@ -9,6 +10,7 @@ interface HeaderProps { onOpenMobileNav: () => void; }
 const nav = [
   { id: 'landing', label: 'Home' },
   { id: 'scan', label: 'Scan & Analyse' },
+  { id: 'dashboard', label: 'Dashboard' },
   { id: 'watchlist', label: 'Site Intelligence' },
   { id: 'incident-check', label: 'Got Scammed?' },
   { id: 'threat-pulse', label: 'Threat Radar' },
@@ -19,12 +21,14 @@ const nav = [
 
 export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
   const { activeView, navigateTo, scans } = useAppData();
+  const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [showTheme, setShowTheme] = useState(false);
   const [fontScale, setFontScale] = useState(1);
   const [language, setLanguage] = useState('EN');
   const [showLang, setShowLang] = useState(false);
   const [quickInput, setQuickInput] = useState('');
+  const quickSearchSequence = useRef(0);
 
   const changeFont = (next: number) => {
     const safe = Math.min(1.18, Math.max(0.9, next));
@@ -35,7 +39,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
   const submitQuick = (e: React.FormEvent) => {
     e.preventDefault();
     if (!quickInput.trim()) return;
-    navigateTo('scan', { tab: 'url' });
+    quickSearchSequence.current += 1;
+    navigateTo('scan', {
+      tab: 'url',
+      url: quickInput.trim(),
+      urlRequestId: quickSearchSequence.current,
+    });
   };
 
   return (
@@ -67,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
             <button className="cp-tool-btn cp-mode-btn" onClick={() => setShowTheme(v => !v)} title="Mode"><span className="cp-mode-icon">{theme === 'dark' ? <Moon className="w-4 h-4" /> : theme === 'light' ? <Sun className="w-4 h-4" /> : theme === 'system' ? <Monitor className="w-4 h-4" /> : <Sun className="w-4 h-4" />}</span><span>Mode</span><ChevronDown className="w-3 h-3" /></button>
             {showTheme && <div className="cp-popover cp-theme-pop"><button onClick={() => {setTheme('light');setShowTheme(false)}}><Sun className="w-4 h-4" />Light</button><button onClick={() => {setTheme('dark');setShowTheme(false)}}><Moon className="w-4 h-4" />Dark</button><button onClick={() => {setTheme('system');setShowTheme(false)}}><Monitor className="w-4 h-4" />System</button></div>}
           </div>
-          <button className="cp-profile-btn" onClick={() => navigateTo('profile')} title="Profile"><UserRound className="w-4 h-4" /><span>Profile</span></button>
+          <button className="cp-profile-btn" onClick={() => navigateTo('account')} title={user ? 'Account' : 'Sign in'}><UserRound className="w-4 h-4" /><span>{user ? 'Account' : 'Sign in'}</span></button>
           <button className="cp-developer-icon-btn" onClick={() => navigateTo('developers')} title="Project credits" aria-label="Project credits"><Code2 className="w-4 h-4" /></button>
         </div>
       </div>

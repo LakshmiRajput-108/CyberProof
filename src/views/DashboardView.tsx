@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppData } from '../context/AppDataContext';
+import { useAuth } from '../context/AuthContext';
 import { RiskBadge } from '../components/ui/RiskBadge';
 import { Button } from '../components/ui/Button';
 import { 
@@ -14,13 +15,62 @@ import { WebsiteHistory } from '../types/history';
 
 export const DashboardView: React.FC = () => {
   const { scans, watchlist, navigateTo } = useAppData();
+  const { user, guest, loading: authLoading, guestLoading, ensureGuestSession } = useAuth();
+  const ownerKey = user ? `member:${user.id}` : guest ? `guest:${guest.sessionId}` : null;
 
   const [uniqueHistories, setUniqueHistories] = React.useState<WebsiteHistory[]>([]);
+  const [loadedOwnerKey, setLoadedOwnerKey] = React.useState<string | null>(null);
+  const [loadingHistory, setLoadingHistory] = React.useState(true);
+  const [historyError, setHistoryError] = React.useState<string | null>(null);
+  const [retryCount, setRetryCount] = React.useState(0);
+  const retryHistory = async () => {
+    setHistoryError(null);
+    if (guest) {
+      try {
+        await ensureGuestSession();
+      } catch {
+        setHistoryError('Could not restore your guest session. Check your connection and retry.');
+        return;
+      }
+    }
+    setRetryCount(count => count + 1);
+  };
+
   React.useEffect(() => {
-    HistoryService.getAllUniqueDomains().then(setUniqueHistories);
-  }, []);
+    let active = true;
+    setUniqueHistories([]);
+    setLoadedOwnerKey(null);
+    setHistoryError(null);
+    if (authLoading || guestLoading) return () => { active = false; };
+    if (!ownerKey) {
+      setLoadingHistory(false);
+      return () => { active = false; };
+    }
+
+    setLoadingHistory(true);
+    HistoryService.getAllUniqueDomains()
+      .then(histories => {
+        if (active) {
+          setUniqueHistories(histories);
+          setLoadedOwnerKey(ownerKey);
+        }
+      })
+      .catch(error => {
+        if (active) {
+          setHistoryError(error instanceof Error ? error.message : 'Could not load your scan history.');
+        }
+      })
+      .finally(() => {
+        if (active) setLoadingHistory(false);
+      });
+
+    return () => { active = false; };
+  }, [ownerKey, authLoading, guestLoading, retryCount]);
   
-  const multiScanDomain = uniqueHistories.find(h => h.scan_count >= 2) || uniqueHistories[0];
+  const visibleHistories = loadedOwnerKey === ownerKey ? uniqueHistories : [];
+  const isLoadingHistory = authLoading || guestLoading || loadingHistory ||
+    (ownerKey !== null && loadedOwnerKey !== ownerKey && !historyError);
+  const multiScanDomain = visibleHistories.find(h => h.scan_count >= 2) || visibleHistories[0];
 
   const recentScans = scans.slice(0, 5);
 
@@ -97,7 +147,16 @@ export const DashboardView: React.FC = () => {
       </div>
 
       {/* Security Over Time Snapshot Card */}
-      {multiScanDomain ? (
+      {historyError ? (
+        <div role="alert" className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-rose-300 dark:border-rose-500/30 text-center space-y-3">
+          <p className="text-sm text-rose-700 dark:text-rose-300">{historyError}</p>
+          <Button variant="primary" size="sm" onClick={() => void retryHistory()}>Retry history</Button>
+        </div>
+      ) : isLoadingHistory ? (
+        <div role="status" className="p-6 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 text-center text-xs text-slate-500">
+          Loading your saved history...
+        </div>
+      ) : multiScanDomain ? (
         <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-br from-teal-500/[0.04] to-slate-50 dark:to-white/[0.02] border border-teal-500/30 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 dark:border-white/10 pb-4">
             <div>

@@ -9,13 +9,9 @@ import {
   Bookmark, 
   BookmarkCheck, 
   AlertTriangle, 
-  HelpCircle, 
-  Check, 
-  Lock, 
   ChevronRight,
   EyeOff
 } from 'lucide-react';
-import { API_BASE_URL } from '../../config/api';
 import { useAppData } from '../../context/AppDataContext';
 
 interface ExtensionPopupProps {
@@ -34,10 +30,10 @@ export const ExtensionPopup: React.FC<ExtensionPopupProps> = ({
 
   const watchlisted = isWatchlisted(scan.domain);
 
-  const identityStatus = scan.evidence.find(e => e.category === 'Identity')?.status || 'Verified';
-  const securityStatus = scan.evidence.find(e => e.category === 'Security')?.status || 'Verified';
-  const behaviorStatus = scan.evidence.find(e => e.category === 'Behavior')?.status || 'Verified';
-  const contextStatus = scan.evidence.find(e => e.category === 'Context')?.status || 'Verified';
+  const identityStatus = scan.evidence.find(e => e.category === 'Identity')?.status || 'Unknown';
+  const securityStatus = scan.evidence.find(e => e.category === 'Security')?.status || 'Unknown';
+  const behaviorStatus = scan.evidence.find(e => e.category === 'Behavior')?.status || 'Unknown';
+  const contextStatus = scan.evidence.find(e => e.category === 'Context')?.status || 'Unknown';
 
   const renderStatusCheck = (label: string, status: string) => {
     const isOk = status === 'Verified';
@@ -55,7 +51,6 @@ export const ExtensionPopup: React.FC<ExtensionPopupProps> = ({
   };
 
   const [activeTab, setActiveTab] = useState<'website' | 'caller'>('website');
-  const [callerState, setCallerState] = useState<'inactive' | 'processing' | 'detected'>('inactive');
 
   return (
     <div className="w-80 md:w-88 bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/15 rounded-2xl shadow-2xl overflow-hidden font-sans text-slate-900 dark:text-slate-100 flex flex-col animate-in fade-in zoom-in-95 duration-150">
@@ -77,8 +72,9 @@ export const ExtensionPopup: React.FC<ExtensionPopupProps> = ({
 
         {activeTab === 'website' && (
           <button
-            onClick={() => toggleWatchlist(scan.domain, scan.target, scan.risk_level)}
-            title={watchlisted ? 'Tracked in Watchlist' : 'Track Website'}
+            onClick={() => void toggleWatchlist(scan.domain, scan.target, scan.risk_level)}
+            title={isSimulated ? 'Tracking is unavailable in this preview' : watchlisted ? 'Tracked in Site Intelligence' : 'Add to Site Intelligence'}
+            disabled={isSimulated}
             className="p-1 rounded hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-teal-600 transition-colors"
           >
             {watchlisted ? (
@@ -112,6 +108,9 @@ export const ExtensionPopup: React.FC<ExtensionPopupProps> = ({
           <>
             {/* Domain & Verdict */}
             <div className="space-y-1.5 text-center">
+              {isSimulated && (
+                <p className="text-[10px] font-semibold text-slate-400">Preview only · showing a saved analysis</p>
+              )}
               <p className="font-mono text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">
                 {scan.domain}
               </p>
@@ -122,21 +121,9 @@ export const ExtensionPopup: React.FC<ExtensionPopupProps> = ({
 
             {/* Dynamic Context Message */}
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-              {scan.risk_level === 'LOW' && (
-                <p>
-                  <strong>Low Risk:</strong> No major concerns were identified in the available signals. Standard encryption and established identity verified.
-                </p>
-              )}
-              {scan.risk_level === 'HIGH' && (
-                <p className="text-rose-600 dark:text-rose-400 font-medium">
-                  <strong>High Risk:</strong> Several available signals require extreme caution. Newly registered or deceptive credential heuristics detected.
-                </p>
-              )}
-              {scan.risk_level === 'UNKNOWN' && (
-                <p className="text-slate-600 dark:text-slate-300">
-                  <strong>Unknown:</strong> CyberProof couldn't verify enough signals to provide a stronger assessment. Limited historical telemetry.
-                </p>
-              )}
+              <p>
+                <strong>{scan.risk_level} Risk:</strong> {scan.summary || 'No summary was provided for this saved analysis.'}
+              </p>
             </div>
 
             {/* Signals Checklist */}
@@ -186,74 +173,15 @@ export const ExtensionPopup: React.FC<ExtensionPopupProps> = ({
           <div className="space-y-4">
             <div className="text-center space-y-1">
               <h3 className="text-sm font-bold">Caller Guard</h3>
-              <p className="text-[10px] text-slate-500 px-2">Manual transcript analysis. We do not auto-record calls.</p>
+              <p className="text-[10px] text-slate-500 px-2">Concept preview only. Call recording and transcript analysis are not available.</p>
             </div>
-
-            {callerState === 'inactive' && (
-              <div className="py-6 text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 mx-auto flex items-center justify-center">
-                  <EyeOff className="w-5 h-5 text-slate-400" />
-                </div>
-                <p className="text-xs text-slate-500">Standby. Activate to begin manual analysis.</p>
-                <Button variant="primary" size="sm" onClick={() => {
-                  setCallerState('processing');
-                  fetch(`${API_BASE_URL}/api/caller/analyze`, {
-                    method: 'POST',
-                    headers: { 
-                      'Content-Type': 'application/json',
-                      'Authorization': 'Bearer premium'
-                    },
-                    body: JSON.stringify({ transcript: "simulation" })
-                  })
-                  .then(res => res.json())
-                  .then(data => setCallerState('detected'))
-                  .catch(() => setCallerState('detected'));
-                }}>
-                  Start Caller Guard
-                </Button>
+            <div role="status" className="py-6 text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 mx-auto flex items-center justify-center">
+                <EyeOff className="w-5 h-5 text-slate-400" />
               </div>
-            )}
-
-            {callerState === 'processing' && (
-              <div className="py-6 text-center space-y-3">
-                <div className="w-10 h-10 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                <p className="text-xs font-mono text-teal-600 dark:text-teal-400 animate-pulse">Analyzing simulated transcript...</p>
-              </div>
-            )}
-
-            {callerState === 'detected' && (
-              <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs">
-                  <div className="flex items-center gap-1.5 font-bold text-rose-600 dark:text-rose-400 mb-1">
-                    <AlertTriangle className="w-4 h-4 shrink-0" />
-                    <span>Potential Scam Indicator Detected</span>
-                  </div>
-                  <p className="text-slate-700 dark:text-slate-300 text-[11px]">
-                    The caller appears to be requesting a security code or OTP.
-                  </p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">What should I do?</h4>
-                  <ul className="space-y-1.5 text-[11px]">
-                    <li className="flex items-start gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-teal-500 shrink-0 mt-0.5" />
-                      <span>Never share verification codes over a phone call.</span>
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                      <HelpCircle className="w-3.5 h-3.5 text-teal-500 shrink-0 mt-0.5" />
-                      <span>Suggested response: "I don't share security codes over phone calls."</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="pt-2 border-t border-slate-100 dark:border-white/10 flex flex-col gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setCallerState('inactive')} className="w-full">
-                    End Session
-                  </Button>
-                </div>
-              </div>
-            )}
+              <p className="text-xs text-slate-500">No call or transcript was analyzed, and no caller risk result is available.</p>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Never share verification codes over a phone call.</p>
+            </div>
           </div>
         )}
       </div>
@@ -266,7 +194,7 @@ export const ExtensionPopup: React.FC<ExtensionPopupProps> = ({
           onClick={() => navigateTo('result', { scan })}
           rightIcon={<ExternalLink className="w-3.5 h-3.5" />}
         >
-          Full Analysis
+          Saved Analysis
         </Button>
 
         <Button
@@ -283,9 +211,9 @@ export const ExtensionPopup: React.FC<ExtensionPopupProps> = ({
       <div className="px-3 py-1.5 bg-slate-100 dark:bg-black/40 border-t border-slate-200/50 dark:border-white/5 text-[10px] text-slate-400 flex items-center justify-between">
         <span className="flex items-center gap-1">
           <EyeOff className="w-3 h-3 text-teal-500" />
-          <span>Zero Form Reading</span>
+          <span>Concept preview only</span>
         </span>
-        <span className="font-mono">Origin-only check</span>
+        <span className="font-mono">No browser access</span>
       </div>
     </div>
   );

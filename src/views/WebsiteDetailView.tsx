@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAppData } from '../context/AppDataContext';
+import { useAuth } from '../context/AuthContext';
 import { HistoryService } from '../services/historyService';
 import { RiskBadge } from '../components/ui/RiskBadge';
 import { Button } from '../components/ui/Button';
@@ -26,33 +27,96 @@ import { WebsiteHistory } from '../types/history';
 
 export const WebsiteDetailView: React.FC = () => {
   const { currentParams, navigateTo, isWatchlisted, toggleWatchlist } = useAppData();
+  const { user, guest, loading: authLoading, guestLoading, ensureGuestSession } = useAuth();
+  const ownerKey = user ? `member:${user.id}` : guest ? `guest:${guest.sessionId}` : null;
   const [isWhyOpen, setIsWhyOpen] = useState(false);
-  const [history, setHistory] = useState<WebsiteHistory | null>(null);
+  const [storedHistory, setHistory] = useState<WebsiteHistory | null>(null);
+  const [loadedOwnerKey, setLoadedOwnerKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [watchlistError, setWatchlistError] = useState<string | null>(null);
+  const [watchlistPending, setWatchlistPending] = useState(false);
+
+  const retryHistory = async () => {
+    setHistoryError(null);
+    if (guest) {
+      try {
+        await ensureGuestSession();
+      } catch {
+        setHistoryError('Could not restore your guest session. Check your connection and retry.');
+        return;
+      }
+    }
+    setRetryCount(count => count + 1);
+  };
+
+  const handleWatchlistToggle = async (targetHistory: WebsiteHistory) => {
+    setWatchlistError(null);
+    setWatchlistPending(true);
+    try {
+      await toggleWatchlist(targetHistory.domain, targetHistory.target, targetHistory.current_risk);
+    } catch (error) {
+      setWatchlistError(error instanceof Error ? error.message : 'Could not update Site Intelligence.');
+    } finally {
+      setWatchlistPending(false);
+    }
+  };
 
   const domain = currentParams.domain || 'example.com';
 
   useEffect(() => {
     let mounted = true;
-    HistoryService.getWebsiteHistory(domain).then(res => {
-      if (mounted) {
-        setHistory(res);
-        if (res && res.scans.length > 0) {
-          setInspectedScan(res.scans[0]);
+    setHistory(null);
+    setLoadedOwnerKey(null);
+    setInspectedScan(null);
+    setHistoryError(null);
+    if (authLoading || guestLoading) return () => { mounted = false; };
+    if (!ownerKey) {
+      setLoading(false);
+      return () => { mounted = false; };
+    }
+
+    setLoading(true);
+    HistoryService.getWebsiteHistory(domain)
+      .then(res => {
+        if (mounted) {
+          setHistory(res);
+          setLoadedOwnerKey(ownerKey);
+          if (res && res.scans.length > 0) setInspectedScan(res.scans[0]);
         }
-        setLoading(false);
-      }
-    });
+      })
+      .catch(error => {
+        if (mounted) {
+          setHistoryError(error instanceof Error ? error.message : 'Could not load this website history.');
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
     return () => { mounted = false; };
-  }, [domain]);
+  }, [domain, ownerKey, authLoading, guestLoading, retryCount]);
 
   const [inspectedScan, setInspectedScan] = useState<Scan | null>(null);
+  const history = loadedOwnerKey === ownerKey ? storedHistory : null;
+  const isLoadingHistory = authLoading || guestLoading || loading ||
+    (ownerKey !== null && loadedOwnerKey !== ownerKey && !historyError);
 
-  if (loading) {
+  if (isLoadingHistory) {
     return (
       <div className="max-w-xl mx-auto py-16 text-center space-y-4">
         <Loader className="w-8 h-8 animate-spin mx-auto text-teal-500" />
         <p className="text-xs text-slate-500">Loading history for {domain}...</p>
+      </div>
+    );
+  }
+
+  if (historyError) {
+    return (
+      <div role="alert" className="max-w-xl mx-auto py-16 text-center space-y-4">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">History unavailable</h2>
+        <p className="text-sm text-slate-500">{historyError}</p>
+        <Button variant="primary" onClick={() => void retryHistory()}>Retry</Button>
       </div>
     );
   }
@@ -98,7 +162,8 @@ export const WebsiteDetailView: React.FC = () => {
           <Button
             variant={watchlisted ? 'secondary' : 'outline'}
             size="sm"
-            onClick={() => toggleWatchlist(history.domain, history.target, history.current_risk)}
+            onClick={() => void handleWatchlistToggle(history)}
+            disabled={watchlistPending}
             leftIcon={watchlisted ? <BookmarkCheck className="w-3.5 h-3.5 text-teal-500" /> : <Bookmark className="w-3.5 h-3.5" />}
           >
             {watchlisted ? 'Tracked' : 'Track This Website'}
@@ -114,6 +179,11 @@ export const WebsiteDetailView: React.FC = () => {
           </Button>
         </div>
       </div>
+      {watchlistError && (
+        <p role="alert" className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-sm text-rose-700 dark:text-rose-300">
+          {watchlistError}
+        </p>
+      )}
 
       {/* Domain Header Card */}
       <div className="p-6 md:p-8 rounded-3xl bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 shadow-sm space-y-4">

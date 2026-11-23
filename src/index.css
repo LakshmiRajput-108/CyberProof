@@ -602,3 +602,238 @@ body{background:var(--cp-bg);}
     padding: 16px 12px;
   }
 }
+
+@media (max-width: 480px) {
+  .cp-home,
+  .cp-home .cp-section,
+  .cp-home .cp-section-head,
+  .cp-home .cp-section-head > div,
+  .cp-home .cp-section-head > p,
+  .cp-home .cp-check-card,
+  .cp-home .cp-scam-card,
+  .cp-home .cp-pathway-card,
+  .cp-home .cp-video-card,
+  .cp-home .cp-bottom-card,
+  .cp-home .cp-extension-copy,
+  .cp-home .cp-extension-visual {
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .cp-home {
+    width: 100%;
+  }
+
+  .cp-home .cp-section {
+    width: 100%;
+    padding: 42px 8px;
+  }
+
+  .cp-home .cp-section-head,
+  .cp-home .cp-section-head > div,
+  .cp-home .cp-section-head > p {
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .cp-home .cp-section-head {
+    display: block;
+  }
+
+  .cp-home .cp-section-head > p {
+    margin-top: 14px;
+  }
+
+  .cp-home .cp-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    min-height: 0;
+    padding: 10px 4px 18px;
+  }
+
+  .cp-home .cp-hero-copy {
+    width: 100%;
+    padding: 16px 4px 4px;
+  }
+
+  .cp-home .cp-hero h1 {
+    font-size: clamp(2rem, 9.5vw, 2.75rem);
+    margin: 14px 0;
+    overflow-wrap: anywhere;
+  }
+
+  .cp-home .cp-hero-copy > p {
+    width: 100%;
+    max-width: none;
+    font-size: clamp(13px, 3.7vw, 15px);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .cp-home .cp-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .cp-home .cp-hero-actions > button {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+  }
+
+  .cp-home .cp-hero-trust {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .cp-home .cp-hero-visual {
+    width: 100%;
+    min-height: clamp(240px, 72vw, 340px);
+    border-radius: 18px;
+  }
+
+  .cp-home .cp-hero-visual > img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cp-home .cp-floating-card {
+    max-width: calc(100% - 24px);
+    gap: 8px;
+    padding: 9px 10px;
+  }
+
+  .cp-home .cp-floating-card > div {
+    min-width: 0;
+  }
+
+  .cp-home .cp-floating-card strong,
+  .cp-home .cp-floating-card span:not(.cp-score-ring) {
+    overflow-wrap: anywhere;
+  }
+
+  .cp-home .cp-score-ring {
+    flex: 0 0 44px;
+  }
+
+  .cp-home .cp-floating-top {
+    top: 12px;
+    left: 12px;
+  }
+
+  .cp-home .cp-floating-bottom {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .cp-home .cp-check-grid,
+  .cp-home .cp-scam-grid,
+  .cp-home .cp-pathway-grid,
+  .cp-home .cp-rules-layout,
+  .cp-home .cp-journey,
+  .cp-home .cp-video-grid,
+  .cp-home .cp-bottom-grid,
+  .cp-home .cp-extension {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cp-home .cp-pathway-featured {
+    grid-column: auto;
+    min-height: 300px;
+  }
+
+  .cp-home .cp-pathway-copy {
+    left: 18px;
+    right: 18px;
+    bottom: 20px;
+    max-width: none;
+  }
+
+  .cp-home .cp-pathway-copy h3 {
+    font-size: 24px;
+  }
+
+  .cp-home .cp-pathway-card {
+    min-height: 240px;
+    padding: 22px;
+    overflow-wrap: anywhere;
+  }
+
+  .cp-home .cp-rules-photo {
+    min-height: 250px;
+  }
+
+  .cp-home .cp-rule {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .cp-home .cp-journey {
+    gap: 10px;
+  }
+
+  .cp-home .cp-journey i {
+    display: none;
+  }
+
+  .cp-home .cp-video-frame {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cp-home .cp-bottom-card {
+    gap: 12px;
+    padding: 22px;
+  }
+
+  .cp-home .cp-extension {
+    gap: 20px;
+  }
+
+  .cp-home .cp-extension-copy h2 {
+    font-size: clamp(30px, 8vw, 36px);
+    overflow-wrap: anywhere;
+  }
+
+  .cp-home .cp-extension-visual {
+    padding: 24px;
+  }
+
+  .cp-home .cp-report-strip {
+    width: calc(100% - 16px);
+    max-width: 100%;
+    margin: 0 8px;
+    padding: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cp-home .cp-report-strip > div,
+  .cp-home .cp-report-strip h2 {
+    width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .cp-home .cp-report-strip a {
+    max-width: 100%;
+    white-space: normal;
+    flex-wrap: wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 420px) {
+  body:has(.cp-home) .cp-brand strong {
+    display: none;
+  }
+}
