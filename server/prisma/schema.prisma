@@ -1,81 +1,82 @@
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
-  name             String?
-  passwordHash     String?
-  membershipTier   String   @default("FREE") // FREE, PREMIUM, COMING_SOON
-  accountStatus    String   @default("ACTIVE")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  lastLoginAt      DateTime?
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?
+  passwordHash   String?
+  membershipTier String   @default("FREE")
+  accountStatus  String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  lastLoginAt    DateTime?
 }
 
 model Scan {
   id                  String   @id @default(cuid())
   userId              String?
-  guestSessionId       String?
+  guestSessionId      String?
   target              String
   domain              String
   analysis_type       String
   risk_level          String
   summary             String
-  why_flagged         String   // JSON string
-  evidence            String   // JSON string
-  recommended_actions String   // JSON string
+  why_flagged         String
+  evidence             String
+  recommended_actions String
   created_at          DateTime @default(now())
   is_demo             Boolean  @default(false)
 }
 
 model WatchlistItem {
-  id           String   @id @default(cuid())
-  userId       String?
+  id            String   @id @default(cuid())
+  userId        String?
   guestSessionId String?
-  domain       String
-  target       String
-  added_at     DateTime @default(now())
-  last_checked DateTime @default(now())
-  current_risk String
-  scan_count   Int      @default(0)
-  notes        String?
-  is_demo      Boolean  @default(false)
+  domain        String
+  target        String
+  added_at      DateTime @default(now())
+  last_checked  DateTime @default(now())
+  current_risk  String
+  scan_count    Int      @default(0)
+  notes         String?
+  is_demo       Boolean  @default(false)
 }
 
 model Incident {
-  id                   String   @id @default(cuid())
-  userId               String?
-  category             String
-  senderChannel        String
-  hasFinancialDemand   Boolean  @default(false)
-  hasUrgencyDeadline   Boolean  @default(false)
-  hasLinkOrPhone       Boolean  @default(false)
-  brandMimicked        String?
-  situationText        String?
-  riskLevel            String   @default("UNKNOWN")
-  recommendations      String   // JSON string
-  created_at           DateTime @default(now())
+  id                  String   @id @default(cuid())
+  userId              String?
+  category            String
+  senderChannel       String
+  hasFinancialDemand  Boolean  @default(false)
+  hasUrgencyDeadline  Boolean  @default(false)
+  hasLinkOrPhone      Boolean  @default(false)
+  brandMimicked       String?
+  situationText       String?
+  riskLevel           String   @default("UNKNOWN")
+  recommendations    String
+  created_at          DateTime @default(now())
 }
 
 model LearnArticle {
-  id           String   @id @default(cuid())
-  title        String
-  slug         String   @unique
-  summary      String
-  content      String
-  category     String
-  difficulty   String
-  readingTime  String
-  status       String   @default("published")
-  publishedAt  DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  summary     String
+  content     String
+  category    String
+  difficulty  String
+  readingTime String
+  status      String   @default("published")
+  publishedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model ThreatPulse {
@@ -83,7 +84,7 @@ model ThreatPulse {
   topic             String
   summary           String
   status            String
-  indicatorsToWatch String   // JSON string
+  indicatorsToWatch String
   preventiveAction  String
   lastUpdated       String
 }
