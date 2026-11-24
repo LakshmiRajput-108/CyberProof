@@ -70,14 +70,45 @@ export const ScanView: React.FC = () => {
   const [scanPercent, setScanPercent] = useState(0);
   const [scanMessage, setScanMessage] = useState('');
   const [scanError, setScanError] = useState<string | null>(null);
+  const [scanNotice, setScanNotice] = useState<string | null>(null);
   const [needsGuestSessionRetry, setNeedsGuestSessionRetry] = useState(false);
   const [retryingGuestSession, setRetryingGuestSession] = useState(false);
 
-  const recordScanError = (error: unknown) => {
-    setNeedsGuestSessionRetry(
-      !token && error instanceof ApiHttpError && error.status === 401
-    );
-    setScanError(getScanErrorMessage(error, Boolean(token)));
+  const recordScanError = async (error: unknown): Promise<void> => {
+    const guestSessionRejected =
+      !token && error instanceof ApiHttpError && error.status === 401;
+
+    if (!guestSessionRejected) {
+      setNeedsGuestSessionRetry(false);
+      setScanNotice(null);
+      setScanError(getScanErrorMessage(error, Boolean(token)));
+      return;
+    }
+
+    setNeedsGuestSessionRetry(false);
+    setScanNotice(null);
+    setRetryingGuestSession(true);
+    setScanStage('preparing');
+    setScanPercent(0);
+    setScanMessage('Restoring your guest scan session...');
+
+    try {
+      await ensureGuestSession();
+      setScanError(null);
+      setScanNotice('Guest session restored. Your scan details are ready—submit again.');
+    } catch (restoreError) {
+      setNeedsGuestSessionRetry(true);
+      setScanError(
+        restoreError instanceof Error
+          ? restoreError.message
+          : 'Could not restore your guest session. Please retry.'
+      );
+    } finally {
+      setRetryingGuestSession(false);
+      setScanStage('idle');
+      setScanPercent(0);
+      setScanMessage('');
+    }
   };
 
   const retryGuestScanSession = async () => {
@@ -86,10 +117,15 @@ export const ScanView: React.FC = () => {
       await ensureGuestSession();
       setNeedsGuestSessionRetry(false);
       setScanError(null);
+      setScanNotice('Guest session restored. Your scan details are ready—submit again.');
     } catch (error) {
+      setScanNotice(null);
       setScanError(error instanceof Error ? error.message : 'Could not restore your guest session. Please retry.');
     } finally {
       setRetryingGuestSession(false);
+      setScanStage('idle');
+      setScanPercent(0);
+      setScanMessage('');
     }
   };
 
@@ -102,6 +138,7 @@ export const ScanView: React.FC = () => {
   const handleUrlScan = async (url: string) => {
     setIsLoading(true);
     setScanError(null);
+    setScanNotice(null);
     setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeUrl(url, handleProgress);
@@ -109,7 +146,7 @@ export const ScanView: React.FC = () => {
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
-      recordScanError(e);
+      await recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -118,6 +155,7 @@ export const ScanView: React.FC = () => {
   const handleQrScan = async (payload: string) => {
     setIsLoading(true);
     setScanError(null);
+    setScanNotice(null);
     setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeQr(payload, handleProgress);
@@ -125,7 +163,7 @@ export const ScanView: React.FC = () => {
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
-      recordScanError(e);
+      await recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -134,6 +172,7 @@ export const ScanView: React.FC = () => {
   const handleEmailScan = async (sender: string, subject: string, body: string) => {
     setIsLoading(true);
     setScanError(null);
+    setScanNotice(null);
     setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeEmail(sender, subject, body, handleProgress);
@@ -141,7 +180,7 @@ export const ScanView: React.FC = () => {
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
-      recordScanError(e);
+      await recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -150,6 +189,7 @@ export const ScanView: React.FC = () => {
   const handleMessageScan = async (msg: string, channel: string) => {
     setIsLoading(true);
     setScanError(null);
+    setScanNotice(null);
     setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeMessage(msg, channel, handleProgress);
@@ -157,7 +197,7 @@ export const ScanView: React.FC = () => {
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
-      recordScanError(e);
+      await recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -166,6 +206,7 @@ export const ScanView: React.FC = () => {
   const handleOtpScan = async (desc: string, channel: string) => {
     setIsLoading(true);
     setScanError(null);
+    setScanNotice(null);
     setNeedsGuestSessionRetry(false);
     try {
       const result = await ScannerService.analyzeOtpSituation(desc, channel, handleProgress);
@@ -173,7 +214,7 @@ export const ScanView: React.FC = () => {
       navigateTo('result', { scan: result });
     } catch (e) {
       console.error(e);
-      recordScanError(e);
+      await recordScanError(e);
     } finally {
       setIsLoading(false);
     }
@@ -202,15 +243,15 @@ export const ScanView: React.FC = () => {
         </p>
       </div>
 
-      {isLoading ? (
+      {isLoading && (
         <ScanProgress
           stage={scanStage}
           percent={scanPercent}
           message={scanMessage}
           isUrlAnalysis={activeTab === 'url'}
         />
-      ) : (
-        <div className="cp-scanner-panel bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 rounded-3xl shadow-xl overflow-hidden">
+      )}
+      <div hidden={isLoading} className="cp-scanner-panel bg-white dark:bg-cyber-bg-darkCard border border-slate-200 dark:border-white/10 rounded-3xl shadow-xl overflow-hidden">
           {/* Tab navigation */}
           <div className="flex border-b border-slate-200 dark:border-white/10 overflow-x-auto bg-slate-50/50 dark:bg-white/[0.02]">
             {tabs.map(tab => {
@@ -235,6 +276,11 @@ export const ScanView: React.FC = () => {
 
           {/* Form Content */}
           <div className="p-6 md:p-8">
+            {scanNotice && (
+              <p role="status" className="mb-5 p-3 rounded-xl bg-teal-500/10 border border-teal-500/30 text-sm text-teal-700 dark:text-teal-300">
+                {scanNotice}
+              </p>
+            )}
             {scanError && (
               <div role="alert" className="mb-5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-sm text-rose-700 dark:text-rose-300 flex flex-wrap items-center justify-between gap-3">
                 <span>{scanError}</span>
@@ -266,8 +312,7 @@ export const ScanView: React.FC = () => {
               <OtpScanner onScan={handleOtpScan} isLoading={isLoading} />
             ) : null}
           </div>
-        </div>
-      )}
+      </div>
 
       {/* Zero Credential Guarantee Bar */}
       <div className="p-4 rounded-2xl bg-slate-100 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5 flex items-center justify-between gap-4 text-xs text-slate-500">
