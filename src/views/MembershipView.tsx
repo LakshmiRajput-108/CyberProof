@@ -1,9 +1,11 @@
 import { useAppData } from '../context/AppDataContext';
 import { Button } from '../components/ui/Button';
 import { Sparkles, Check, Chrome } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export const MembershipView: React.FC = () => {
   const { navigateTo } = useAppData();
+  const { t } = useLanguage();
 
   const freeFeatures = [
     'URL Scan & Analysis (guest and free registered accounts)',
@@ -24,7 +26,7 @@ export const MembershipView: React.FC = () => {
       <div className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 text-xs font-semibold">
           <Sparkles className="w-3.5 h-3.5 text-teal-500" />
-          <span>CyberProof Ecosystem Plans</span>
+          <span>{t('membership.title')}</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           Simple, Honest Digital Trust.

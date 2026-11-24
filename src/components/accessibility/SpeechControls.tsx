@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Mic, Square, Volume2, VolumeX } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 type SpeechRecognitionEventLike = {
   results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }>;
@@ -30,6 +31,7 @@ export const VoiceInputButton: React.FC<{
   onTranscript: (text: string) => void;
   className?: string;
 }> = ({ onTranscript, className = '' }) => {
+  const { language } = useLanguage();
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const [listening, setListening] = useState(false);
   const [message, setMessage] = useState('');
@@ -54,7 +56,7 @@ export const VoiceInputButton: React.FC<{
     }
 
     const recognition = new Recognition();
-    recognition.lang = 'en-IN';
+    recognition.lang = language === 'hi' ? 'hi-IN' : language === 'mr' ? 'mr-IN' : language === 'te' ? 'te-IN' : 'en-IN';
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.onresult = event => {

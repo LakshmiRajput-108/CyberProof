@@ -1,17 +1,19 @@
 import React from 'react';
 import { useAppData } from '../../context/AppDataContext';
 import { Github } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const Footer: React.FC = () => {
   const { navigateTo } = useAppData();
+  const { t } = useLanguage();
 
   const links = [
-    ['Home', 'landing'],
-    ['Privacy', 'profile'],
-    ['Terms', 'help-center'],
-    ['Disclaimer', 'help-center'],
-    ['Security', 'help-center'],
-    ['Accessibility', 'help-center'],
+    [t('nav.home'), 'landing'],
+    [t('nav.privacy'), 'profile'],
+    [t('nav.terms'), 'help-center'],
+    [t('nav.disclaimer'), 'help-center'],
+    [t('nav.security'), 'help-center'],
+    [t('nav.accessibility'), 'help-center'],
   ] as const;
 
   return (
@@ -31,8 +33,8 @@ export const Footer: React.FC = () => {
           <Github className="w-4 h-4" />
         </a>
       </nav>
-      <p className="cp-footer-credential">Designed and developed by the CyberProof student team.</p>
-      <p className="cp-footer-disclaimer">CyberProof is an educational project and does not replace official emergency, financial, law-enforcement or government reporting services.</p>
+      <p className="cp-footer-credential">{t('footer.credential')}</p>
+      <p className="cp-footer-disclaimer">{t('footer.disclaimer')}</p>
       <p className="cp-footer-copyright">© 2026 CyberProof. All rights reserved.</p>
     </footer>
   );

@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { AppDataProvider, useAppData } from './context/AppDataContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { ReadAloudProvider } from './context/ReadAloudContext';
 import { Header } from './components/layout/Header';
 import { MobileNav } from './components/layout/MobileNav';
 import { Footer } from './components/layout/Footer';
@@ -28,6 +30,7 @@ import { DevelopersView } from './views/DevelopersView';
 import { AccountView } from './views/AccountView';
 
 const AppContent: React.FC = () => {
+  const { t } = useLanguage();
   const {
     activeView,
     navigateTo,
@@ -79,7 +82,7 @@ const AppContent: React.FC = () => {
         <main className="flex-1 px-4 sm:px-6 md:px-8 lg:px-10 py-5 md:py-7">
           {sessionExpired && (
             <div role="alert" className="mb-5 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-wrap items-center justify-between gap-3 text-sm text-amber-900 dark:text-amber-200">
-              <p>Your member session expired. Sign in again to use member features; guest URL scanning remains available.</p>
+              <p>{t('account.session')}: Your member session expired. Sign in again to use member features; guest URL scanning remains available.</p>
               <div className="flex items-center gap-2">
                 <Button size="sm" onClick={() => navigateTo('account')}>Sign in</Button>
                 <Button size="sm" variant="ghost" onClick={dismissSessionExpired}>Dismiss</Button>
@@ -111,13 +114,17 @@ const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppDataProvider>
-          <AppContent />
-        </AppDataProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppDataProvider>
+            <ReadAloudProvider>
+              <AppContent />
+            </ReadAloudProvider>
+          </AppDataProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 };
 

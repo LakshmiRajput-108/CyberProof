@@ -12,10 +12,12 @@ import {
 } from 'lucide-react';
 import { HistoryService } from '../services/historyService';
 import { WebsiteHistory } from '../types/history';
+import { useLanguage } from '../context/LanguageContext';
 
 export const DashboardView: React.FC = () => {
   const { scans, watchlist, navigateTo } = useAppData();
   const { user, guest, loading: authLoading, guestLoading, ensureGuestSession } = useAuth();
+  const { t } = useLanguage();
   const ownerKey = user ? `member:${user.id}` : guest ? `guest:${guest.sessionId}` : null;
 
   const [uniqueHistories, setUniqueHistories] = React.useState<WebsiteHistory[]>([]);
@@ -81,14 +83,14 @@ export const DashboardView: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
-              Personal Security Dashboard
+              {t('dashboard.kicker')}
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">
-            Digital Trust Overview
+            {t('dashboard.title')}
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-            Monitor verified websites, inspect recent scan snapshots, and evaluate security changes.
+            {t('dashboard.subtitle')}
           </p>
         </div>
 
@@ -99,7 +101,7 @@ export const DashboardView: React.FC = () => {
             onClick={() => navigateTo('scan')}
             leftIcon={<Plus className="w-4 h-4" />}
           >
-            Start New Scan
+            {t('dashboard.newScan')}
           </Button>
         </div>
       </div>

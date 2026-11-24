@@ -19,6 +19,7 @@ import {
   Lock,
   EyeOff,
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const getScanErrorMessage = (error: unknown, isMemberRequest: boolean): string => {
   if (error instanceof ApiNetworkError) {
@@ -48,6 +49,7 @@ const getScanErrorMessage = (error: unknown, isMemberRequest: boolean): string =
 
 export const ScanView: React.FC = () => {
   const { currentParams, navigateTo, addScanRecord } = useAppData();
+  const { t } = useLanguage();
   const { token, loading: authLoading, guestLoading, ensureGuestSession } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'url' | 'qr' | 'email' | 'message' | 'otp-situation'>('url');
@@ -221,11 +223,11 @@ export const ScanView: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'url', label: 'Website / URL', icon: Globe },
-    { id: 'qr', label: 'QR Code', icon: QrCode },
-    { id: 'email', label: 'Email Content', icon: Mail },
-    { id: 'message', label: 'Message / SMS', icon: MessageSquare },
-    { id: 'otp-situation', label: 'OTP Situation', icon: Lock },
+    { id: 'url', label: t('scan.tabs.url'), icon: Globe },
+    { id: 'qr', label: t('scan.tabs.qr'), icon: QrCode },
+    { id: 'email', label: t('scan.tabs.email'), icon: Mail },
+    { id: 'message', label: t('scan.tabs.message'), icon: MessageSquare },
+    { id: 'otp-situation', label: t('scan.tabs.otp'), icon: Lock },
   ] as const;
 
   return (
@@ -236,10 +238,10 @@ export const ScanView: React.FC = () => {
           Digital Trust Inspection Center
         </span>
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">
-          Scan & Analyze Digital Signals
+          {t('scan.title')}
         </h1>
         <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
-          All five scan types are free for guests and registered accounts. URL checks use submitted-text heuristics; QR image decoding is unavailable.
+          {t('scan.privacy')}
         </p>
       </div>
 
@@ -318,7 +320,7 @@ export const ScanView: React.FC = () => {
       <div className="p-4 rounded-2xl bg-slate-100 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5 flex items-center justify-between gap-4 text-xs text-slate-500">
         <div className="flex items-center gap-2">
           <EyeOff className="w-4 h-4 text-teal-500 shrink-0" />
-          <span>Never requests passwords, ATM PINs, private OTPs, or authentication keys.</span>
+          <span>{t('scan.privacy')}</span>
         </div>
         <span className="font-mono text-[11px] hidden sm:inline text-teal-600 dark:text-teal-400 font-semibold">
           Transparent Analysis
