@@ -14,9 +14,11 @@ import {
 import { RiskLevel, AnalysisType } from '../types/scan';
 import { WebsiteHistory } from '../types/history';
 import { TrustScore } from '../components/ui/TrustScore';
+import { useLanguage } from '../context/LanguageContext';
 
 export const HistoryView: React.FC = () => {
   const { navigateTo } = useAppData();
+  const { t } = useLanguage();
   const { user, guest, loading: authLoading, guestLoading, ensureGuestSession } = useAuth();
   const ownerKey = user ? `member:${user.id}` : guest ? `guest:${guest.sessionId}` : null;
   const [searchQuery, setSearchQuery] = useState('');
@@ -104,10 +106,10 @@ export const HistoryView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
-            Recorded Scans
+            {t('history.title')}
           </span>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">
-            Security History
+            {t('history.title')}
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
             Search previously checked targets, compare chronological changes, and inspect evidence trends.

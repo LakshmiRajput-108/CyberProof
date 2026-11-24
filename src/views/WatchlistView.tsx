@@ -14,8 +14,10 @@ import {
 import { WatchlistItem } from '../types/watchlist';
 import { TRUST_SCORE_DISCLAIMER, TrustScore } from '../components/ui/TrustScore';
 import { findMatchingScan } from '../services/domainUtils';
+import { useLanguage } from '../context/LanguageContext';
 
 export const WatchlistView: React.FC = () => {
+  const { t } = useLanguage();
   const {
     watchlist,
     toggleWatchlist,
@@ -81,11 +83,11 @@ export const WatchlistView: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
-              Site Intelligence
+              {t('watchlist.title')}
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">
-            Site Intelligence
+            {t('watchlist.title')}
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
             Track websites you have checked, review their heuristic signals, and follow how scores change across your saved scans.

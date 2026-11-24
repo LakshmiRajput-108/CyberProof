@@ -3,12 +3,14 @@ import { ArrowRight, KeyRound, LogIn, LogOut, ShieldCheck, UserPlus } from 'luci
 import { Button } from '../components/ui/Button';
 import { useAppData } from '../context/AppDataContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 type AccountMode = 'login' | 'register';
 
 export const AccountView: React.FC = () => {
   const { navigateTo } = useAppData();
   const { user, guest, loading, login, register, logout } = useAuth();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<AccountMode>('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -41,7 +43,7 @@ export const AccountView: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-xl mx-auto py-16 text-center text-sm text-slate-500">
-        Checking your account session...
+        {t('account.loading')}
       </div>
     );
   }
@@ -55,13 +57,13 @@ export const AccountView: React.FC = () => {
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">Account session</h1>
-              <p className="text-xs text-slate-500">Signed in as {user.email}</p>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">{t('account.session')}</h1>
+              <p className="text-xs text-slate-500">{t('account.signedIn')} {user.email}</p>
             </div>
           </div>
 
           <div className="rounded-2xl bg-slate-50 dark:bg-white/[0.03] p-4 text-sm text-slate-600 dark:text-slate-300">
-            <p><strong className="text-slate-900 dark:text-white">Name:</strong> {user.name || 'Not set'}</p>
+            <p><strong className="text-slate-900 dark:text-white">{t('account.name')}:</strong> {user.name || t('common.notSet')}</p>
             <p className="mt-1"><strong className="text-slate-900 dark:text-white">Recorded membership tier:</strong> {user.tier}</p>
             <p className="mt-1 text-xs">Premium entitlements remain unavailable until membership expiry can be verified.</p>
           </div>
@@ -72,7 +74,7 @@ export const AccountView: React.FC = () => {
 
           <div className="flex flex-wrap gap-3">
             <Button variant="outline" onClick={() => navigateTo('profile')}>
-              Profile & Privacy
+              {t('account.profile')}
             </Button>
             <Button variant="danger" onClick={() => {
               logout();
@@ -93,7 +95,7 @@ export const AccountView: React.FC = () => {
           CyberProof Account
         </span>
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">
-          {mode === 'login' ? 'Welcome back' : 'Create your account'}
+          {mode === 'login' ? t('account.welcome') : t('account.create')}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
           Sign in to keep your scans and watchlist associated with your account.
@@ -107,14 +109,14 @@ export const AccountView: React.FC = () => {
             onClick={() => { setMode('login'); setError(null); }}
             className={`rounded-lg py-2 text-sm font-semibold ${mode === 'login' ? 'bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-300 shadow-sm' : 'text-slate-500'}`}
           >
-            Log in
+            {t('account.login')}
           </button>
           <button
             type="button"
             onClick={() => { setMode('register'); setError(null); }}
             className={`rounded-lg py-2 text-sm font-semibold ${mode === 'register' ? 'bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-300 shadow-sm' : 'text-slate-500'}`}
           >
-            Register
+            {t('account.register')}
           </button>
         </div>
 
@@ -128,7 +130,7 @@ export const AccountView: React.FC = () => {
           {mode === 'register' && (
             <div>
               <label htmlFor="account-name" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                Name (optional)
+                {t('account.nameOptional')}
               </label>
               <input
                 id="account-name"
@@ -144,7 +146,7 @@ export const AccountView: React.FC = () => {
 
           <div>
             <label htmlFor="account-email" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              Email
+              {t('account.email')}
             </label>
             <input
               id="account-email"
@@ -159,7 +161,7 @@ export const AccountView: React.FC = () => {
 
           <div>
             <label htmlFor="account-password" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              Password
+              {t('account.password')}
             </label>
             <input
               id="account-password"

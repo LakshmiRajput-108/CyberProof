@@ -7,6 +7,7 @@ import {
   CreditCard, BriefcaseBusiness, BadgeAlert, CheckCircle2,
   Chrome, LifeBuoy, ExternalLink, ChevronRight
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const scams = [
   { title: 'Digital arrest & fake officials', text: 'A caller claims to be police or an agency and creates fear, urgency or a fake video-call setup.', icon: Siren },
@@ -35,6 +36,7 @@ const checks = [
 
 export const LandingView: React.FC = () => {
   const { navigateTo } = useAppData();
+  const { t } = useLanguage();
 
   const goScan = (tab = 'url') => navigateTo('scan', { tab });
 
@@ -43,19 +45,19 @@ export const LandingView: React.FC = () => {
       {/* HERO */}
       <section className="cp-hero">
         <div className="cp-hero-copy">
-          <span className="cp-kicker">DIGITAL SAFETY & AWARENESS</span>
-          <h1>Before you trust,<br /><span>check.</span></h1>
+          <span className="cp-kicker">{t('landing.kicker')}</span>
+          <h1>{t('landing.heroTitle')}<br /><span>{t('landing.heroAccent')}</span></h1>
           <p>
-            CyberProof helps you check suspicious websites, messages, emails, QR codes and other digital interactions — then explains what to do next.
+            {t('landing.heroText')}
           </p>
           <div className="cp-hero-actions">
-            <Button variant="primary" size="lg" onClick={() => goScan()} rightIcon={<ArrowRight className="w-5 h-5" />}>Check something</Button>
-            <Button variant="outline" size="lg" onClick={() => document.getElementById('cp-awareness')?.scrollIntoView({ behavior: 'smooth' })}>Learn how scams work</Button>
+            <Button variant="primary" size="lg" onClick={() => goScan()} rightIcon={<ArrowRight className="w-5 h-5" />}>{t('landing.checkSomething')}</Button>
+            <Button variant="outline" size="lg" onClick={() => document.getElementById('cp-awareness')?.scrollIntoView({ behavior: 'smooth' })}>{t('landing.learnScams')}</Button>
           </div>
           <div className="cp-hero-trust">
-            <span><ShieldCheck className="w-4 h-4" /> Explainable checks</span>
-            <span><LockKeyhole className="w-4 h-4" /> No passwords or OTPs</span>
-            <span><CheckCircle2 className="w-4 h-4" /> Practical next steps</span>
+            <span><ShieldCheck className="w-4 h-4" /> {t('landing.explainable')}</span>
+            <span><LockKeyhole className="w-4 h-4" /> {t('landing.noSecrets')}</span>
+            <span><CheckCircle2 className="w-4 h-4" /> {t('landing.nextSteps')}</span>
           </div>
         </div>
 
@@ -76,8 +78,8 @@ export const LandingView: React.FC = () => {
       {/* CHECK ANYTHING */}
       <section className="cp-section cp-check-section">
         <div className="cp-section-head">
-          <div><span className="cp-kicker">01 / CHECK ANYTHING</span><h2>Something looks wrong?<br /><span>Check it before you act.</span></h2></div>
-          <p>Choose what you received. CyberProof takes you to the right analysis flow without asking for sensitive authentication secrets.</p>
+          <div><span className="cp-kicker">01 / {t('landing.checkSomething')}</span><h2>{t('landing.checkHeading')}<br /><span>{t('landing.checkAccent')}</span></h2></div>
+          <p>{t('landing.checkText')}</p>
         </div>
         <div className="cp-check-grid">
           {checks.map(item => {
