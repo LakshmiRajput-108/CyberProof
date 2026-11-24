@@ -3,11 +3,7 @@ import { Router } from 'express';
 import { AnalysisEngine } from '../services/analysisEngine';
 import { prisma } from '../prisma/client';
 import { containsForbiddenKeys } from '../schemas/scan';
-import { requireAuth, AuthenticatedRequest } from '../middleware/authMiddleware';
-import {
-  requireScanOwner,
-  GuestRequest,
-} from '../middleware/guestSessionMiddleware';
+import { requireScanOwner, GuestRequest } from '../middleware/guestSessionMiddleware';
 
 const router = Router();
 
@@ -104,8 +100,8 @@ router.post('/url', requireScanOwner, async (req, res) => {
   }
 });
 
-// QR analysis remains member-only
-router.post('/qr', requireAuth, async (req, res) => {
+// All analysis types are available to authenticated members and guest sessions.
+router.post('/qr', requireScanOwner, async (req, res) => {
   if (containsForbiddenKeys(req.body)) return res.status(400).json({ error: 'Prohibited fields' });
   const { payloadText } = req.body ?? {};
   if (typeof payloadText !== 'string' || !payloadText.trim()) {
@@ -113,17 +109,15 @@ router.post('/qr', requireAuth, async (req, res) => {
   }
 
   try {
-    const userId = (req as AuthenticatedRequest).userId!;
     const result = AnalysisEngine.analyzeQr(payloadText);
-    const saved = await saveResult(result, { userId });
+    const saved = await saveResult(result, req as GuestRequest);
     return res.json(saved);
   } catch {
     return res.status(500).json({ error: 'Analysis failed' });
   }
 });
 
-// Email analysis remains member-only
-router.post('/email', requireAuth, async (req, res) => {
+router.post('/email', requireScanOwner, async (req, res) => {
   if (containsForbiddenKeys(req.body)) return res.status(400).json({ error: 'Prohibited fields' });
   const { sender, subject, body } = req.body ?? {};
   if (typeof body !== 'string' || !body.trim()) {
@@ -131,17 +125,15 @@ router.post('/email', requireAuth, async (req, res) => {
   }
 
   try {
-    const userId = (req as AuthenticatedRequest).userId!;
     const result = AnalysisEngine.analyzeEmail(sender || '', subject || '', body || '');
-    const saved = await saveResult(result, { userId });
+    const saved = await saveResult(result, req as GuestRequest);
     return res.json(saved);
   } catch {
     return res.status(500).json({ error: 'Analysis failed' });
   }
 });
 
-// Message analysis remains member-only
-router.post('/message', requireAuth, async (req, res) => {
+router.post('/message', requireScanOwner, async (req, res) => {
   if (containsForbiddenKeys(req.body)) return res.status(400).json({ error: 'Prohibited fields' });
   const { messageText, channel } = req.body ?? {};
   if (typeof messageText !== 'string' || !messageText.trim()) {
@@ -149,17 +141,15 @@ router.post('/message', requireAuth, async (req, res) => {
   }
 
   try {
-    const userId = (req as AuthenticatedRequest).userId!;
     const result = AnalysisEngine.analyzeMessage(messageText || '', channel || '');
-    const saved = await saveResult(result, { userId });
+    const saved = await saveResult(result, req as GuestRequest);
     return res.json(saved);
   } catch {
     return res.status(500).json({ error: 'Analysis failed' });
   }
 });
 
-// OTP situation analysis remains member-only
-router.post('/otp-situation', requireAuth, async (req, res) => {
+router.post('/otp-situation', requireScanOwner, async (req, res) => {
   if (containsForbiddenKeys(req.body)) return res.status(400).json({ error: 'Prohibited fields' });
   const { situationDescription, channel } = req.body ?? {};
   if (typeof situationDescription !== 'string' || !situationDescription.trim()) {
@@ -167,9 +157,8 @@ router.post('/otp-situation', requireAuth, async (req, res) => {
   }
 
   try {
-    const userId = (req as AuthenticatedRequest).userId!;
     const result = AnalysisEngine.analyzeOtpSituation(situationDescription || '', channel || '');
-    const saved = await saveResult(result, { userId });
+    const saved = await saveResult(result, req as GuestRequest);
     return res.json(saved);
   } catch {
     return res.status(500).json({ error: 'Analysis failed' });
