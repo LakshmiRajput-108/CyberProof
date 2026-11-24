@@ -18,7 +18,6 @@ import {
   MessageSquare, 
   Lock,
   EyeOff,
-  UserRound
 } from 'lucide-react';
 
 const getScanErrorMessage = (error: unknown, isMemberRequest: boolean): string => {
@@ -33,7 +32,7 @@ const getScanErrorMessage = (error: unknown, isMemberRequest: boolean): string =
         : 'Your guest scan session could not be verified. Restore the session below, then retry the scan.';
     }
     if (error.status === 403) {
-      return 'This analysis requires a signed-in member account. Sign in and try again.';
+      return 'This analysis is not enabled for the current session.';
     }
     if (error.status === 429) {
       return 'Too many requests were made. Wait a moment, then try again.';
@@ -199,7 +198,7 @@ export const ScanView: React.FC = () => {
           Scan & Analyze Digital Signals
         </h1>
         <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
-          URL checks use submitted-text and hostname heuristics, not live threat intelligence. Member-only analysis types are clearly identified below.
+          All five scan types are free for guests and registered accounts. URL checks use submitted-text heuristics; QR image decoding is unavailable.
         </p>
       </div>
 
@@ -250,23 +249,6 @@ export const ScanView: React.FC = () => {
               <p role="status" className="py-8 text-center text-sm text-slate-500">
                 Preparing your CyberProof session...
               </p>
-            ) : activeTab !== 'url' && !token ? (
-              <div className="max-w-xl mx-auto py-8 text-center space-y-4">
-                <Lock className="w-8 h-8 mx-auto text-amber-500" />
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                  Member account required
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  QR, email, message, and OTP-situation analysis require a signed-in member account. Guest URL scanning remains available.
-                </p>
-                <Button
-                  variant="primary"
-                  onClick={() => navigateTo('account')}
-                  leftIcon={<UserRound className="w-4 h-4" />}
-                >
-                  Sign in or register
-                </Button>
-              </div>
             ) : activeTab === 'url' ? (
               <UrlScanner
                 onScan={handleUrlScan}

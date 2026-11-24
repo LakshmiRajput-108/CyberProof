@@ -21,7 +21,7 @@ const categories: HelpCategory[] = [
   { title: 'Browser Extension', description: 'CyberProof Guard setup, checks and extension guidance.', icon: <Puzzle />, keywords: ['extension', 'guard', 'browser'] },
   { title: 'Accessibility', description: 'Read Aloud, text size, keyboard and accessible use.', icon: <Accessibility />, keywords: ['accessibility', 'read aloud', 'font', 'keyboard'] },
   { title: 'Language', description: 'English, Hindi, Marathi and Telugu language support.', icon: <Languages />, keywords: ['language', 'english', 'hindi', 'marathi', 'telugu'] },
-  { title: 'Membership', description: 'Free and Premium features, billing and student access.', icon: <CreditCard />, keywords: ['membership', 'premium', 'free', 'billing'] },
+  { title: 'Membership', description: 'Free scan features, ₹19/month Premium pricing and checkout availability.', icon: <CreditCard />, keywords: ['membership', 'premium', 'free', 'billing'] },
 ];
 
 const faqs = [

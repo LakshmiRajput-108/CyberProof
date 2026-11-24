@@ -62,7 +62,8 @@ export const AccountView: React.FC = () => {
 
           <div className="rounded-2xl bg-slate-50 dark:bg-white/[0.03] p-4 text-sm text-slate-600 dark:text-slate-300">
             <p><strong className="text-slate-900 dark:text-white">Name:</strong> {user.name || 'Not set'}</p>
-            <p className="mt-1"><strong className="text-slate-900 dark:text-white">Plan:</strong> {user.tier}</p>
+            <p className="mt-1"><strong className="text-slate-900 dark:text-white">Recorded membership tier:</strong> {user.tier}</p>
+            <p className="mt-1 text-xs">Premium entitlements remain unavailable until membership expiry can be verified.</p>
           </div>
 
           <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">

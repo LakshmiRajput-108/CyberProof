@@ -76,12 +76,12 @@ export const ProfilePrivacyView: React.FC = () => {
                 : user
                   ? `Account tier: ${user.tier}`
                   : guest
-                    ? 'Guest session · paid membership is not currently available'
-                    : 'Paid membership is not currently available'}
+                    ? 'Guest session · free scan access'
+                    : 'Free scan access'}
               {' • '}{scans.length} scans loaded for this session
             </p>
             <p className="mt-1 text-xs text-slate-500">
-              Paid membership activation and billing are unavailable. The installable browser extension is in development and is not unlocked by membership.
+              Premium is listed at ₹19/month. Checkout and membership-expiry tracking are not configured, so Premium features remain unavailable.
             </p>
           </div>
         </div>
@@ -138,7 +138,7 @@ export const ProfilePrivacyView: React.FC = () => {
             <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
               <li>• URL syntax, hostname patterns, and risk-related words (heuristics)</li>
               <li>• Submitted text for QR, email, message, and OTP-situation analysis</li>
-              <li>• Incident details that you choose to submit</li>
+              <li>• Incident answers are not submitted; Incident Check provides general guidance only</li>
               <li>• No live site visit, certificate check, redirect inspection, or threat-feed lookup is performed by URL analysis</li>
             </ul>
           </div>

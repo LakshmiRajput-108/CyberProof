@@ -64,7 +64,7 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, isLoading }) => {
           QR Code Image or Screenshot
         </label>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Image upload is preview-only. QR image decoding is not available; use a sample text payload below to test the member-only text analyzer.
+          Image upload is preview-only. QR image decoding is not available; guest and registered users can analyze text payloads using the samples below.
         </p>
       </div>
 
